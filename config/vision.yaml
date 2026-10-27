@@ -1,0 +1,46 @@
+camera_node:
+  ros__parameters:
+    device: /dev/video0
+    calibration_file: /home/pi/drone_project/config/camera_intrinsics.yaml
+    width: 640
+    height: 480
+    publish_fps: 30.0
+    # NV12 luma -> MONO8: skip NV12 -> BGR -> gray and reduce ROS image bytes by 2/3.
+    grayscale: true
+    isp_device: /dev/v4l-subdev12
+    # Allwinner ISP: microseconds, 0=auto; >0=fixed shutter with automatic gain.
+    # 2000 us = 2 ms (1/500 s); try 1000 with sufficient light for less motion blur.
+    exposure_time_us: 2000
+    image_rotation_deg: 0
+    mirror_horizontal: false
+    frame_id: camera_optical_frame
+    retry_seconds: 2.0
+    frame_timeout_seconds: 2.0
+    max_buffer_age_seconds: 0.25
+# Nodes do not run modprobe or change system config.
+tag_detector_node:
+  ros__parameters:
+    target_id: 0
+    tag_size_m: 0.12
+    calibration_file: /home/pi/drone_project/config/camera_intrinsics.yaml
+    max_image_age_seconds: 0.5
+    jpeg_quality: 55
+    opencv_threads: 4
+    # Suppress high-gain speckle before candidate extraction; 0 disables filtering.
+    # Corner refinement still uses original pixels. Very small tags may need 0.
+    denoise_sigma: 0.8
+    # Keep all three threshold windows to retain small/distant target detection.
+    adaptive_thresh_win_min: 3
+    adaptive_thresh_win_max: 23
+    adaptive_thresh_win_step: 10
+    preview_fps: 10.0
+follow_preview_node:
+  ros__parameters:
+    max_target_age_seconds: 0.5
+    yaw_gain: 0.3
+    max_yaw_rate: 0.25
+    deadzone_normalized: 0.05
+    camera_upright_confirmed: false
+    snapshot_directory: /dev/shm/drone_vision
+# Front-facing upright camera: optical z is forward, optical y is down.
+# Flight task can override the physical tag size without restarting the detector.

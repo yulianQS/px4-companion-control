@@ -5,7 +5,8 @@
   let requestController = null, startedAt = 0, sawSession = false;
   const axes = {throttle: 0, yaw: 0, pitch: 0, roll: 0};
   const pads = [
-    {side: 'left', x: 'yaw', y: 'throttle', pointer: null, keys: new Set()},
+    {side: 'throttle-control', y: 'throttle', hold: true, pointer: null, keys: new Set()},
+    {side: 'yaw-control', x: 'yaw', pointer: null, keys: new Set()},
     {side: 'right', x: 'roll', y: 'pitch', pointer: null, keys: new Set()}
   ];
   const pageVisible = () => document.visibilityState === 'visible' && location.hash === '#motion';
@@ -18,16 +19,18 @@
 
   function paint(pad) {
     const surface = $('stick-' + pad.side), knob = $('knob-' + pad.side);
-    const radius = Math.max(1, surface.getBoundingClientRect().width / 2 - knob.offsetWidth / 2 - 7);
-    knob.style.transform = `translate(${axes[pad.x] * radius}px, ${-axes[pad.y] * radius}px)`;
-    for (const name of [pad.x, pad.y]) $('stick-' + name).textContent = Math.round(axes[name] * 100) + '%';
+    const rect = surface.getBoundingClientRect();
+    const radiusX = Math.max(1, rect.width / 2 - knob.offsetWidth / 2 - 7);
+    const radiusY = Math.max(1, rect.height / 2 - knob.offsetHeight / 2 - 7);
+    knob.style.transform = `translate(${pad.x ? axes[pad.x] * radiusX : 0}px, ${pad.y ? -axes[pad.y] * radiusY : 0}px)`;
+    for (const name of [pad.x, pad.y].filter(Boolean)) $('stick-' + name).textContent = Math.round(axes[name] * 100) + '%';
   }
   function reset(pad, keepThrottle = false) {
     const pointer = pad.pointer;
     pad.pointer = null;
     pad.keys.clear();
-    axes[pad.x] = 0;
-    if (!keepThrottle || pad.side !== 'left') axes[pad.y] = 0;
+    if (pad.x) axes[pad.x] = 0;
+    if (pad.y && !(keepThrottle && pad.hold)) axes[pad.y] = 0;
     const surface = $('stick-' + pad.side);
     surface.classList.remove('dragging');
     if (pointer !== null && surface.hasPointerCapture(pointer)) surface.releasePointerCapture(pointer);
@@ -45,16 +48,19 @@
     if (previous) postControl('action', {action: 'stick_stop', session: previous, request_id: uniqueId()}).catch(() => {});
   }
   function setAxes(pad, x, y) {
-    const magnitude = Math.max(1, Math.hypot(x, y));
-    axes[pad.x] = x / magnitude;
-    axes[pad.y] = y / magnitude;
+    // 单轴控件互不归一化：转向操作不改变已经保持的升降速度。
+    const magnitude = pad.x && pad.y ? Math.max(1, Math.hypot(x, y)) : 1;
+    if (pad.x) axes[pad.x] = Math.max(-1, Math.min(1, x / magnitude));
+    if (pad.y) axes[pad.y] = Math.max(-1, Math.min(1, y / magnitude));
     paint(pad);
   }
   function pointerPosition(pad, event) {
     const rect = $('stick-' + pad.side).getBoundingClientRect();
-    const radius = Math.max(1, rect.width / 2 - $('knob-' + pad.side).offsetWidth / 2 - 7);
-    setAxes(pad, (event.clientX - rect.left - rect.width / 2) / radius,
-      -(event.clientY - rect.top - rect.height / 2) / radius);
+    const knob = $('knob-' + pad.side);
+    const radiusX = Math.max(1, rect.width / 2 - knob.offsetWidth / 2 - 7);
+    const radiusY = Math.max(1, rect.height / 2 - knob.offsetHeight / 2 - 7);
+    setAxes(pad, (event.clientX - rect.left - rect.width / 2) / radiusX,
+      -(event.clientY - rect.top - rect.height / 2) / radiusY);
   }
   for (const pad of pads) {
     const surface = $('stick-' + pad.side);
@@ -77,21 +83,18 @@
       reset(pad, event.type === 'pointerup'); pulse();
     };
     for (const name of ['pointerup', 'pointercancel', 'lostpointercapture']) surface.addEventListener(name, endPointer);
-    const arrows = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
+    const arrows = [...(pad.y ? ['ArrowUp', 'ArrowDown'] : []), ...(pad.x ? ['ArrowLeft', 'ArrowRight'] : [])];
     const keyboardPosition = () => {
       const x = (pad.keys.has('ArrowRight') ? 1 : 0) - (pad.keys.has('ArrowLeft') ? 1 : 0);
-      if (pad.side === 'left') {
-        // 升降轴按5%步进且松键保持；偏航松键回零，不改变已设升降杆量。
-        axes[pad.x] = x * Math.sqrt(Math.max(0, 1 - axes[pad.y] ** 2));
-        paint(pad);
-      } else {
+      if (pad.hold) paint(pad);
+      else {
         setAxes(pad, x, (pad.keys.has('ArrowUp') ? 1 : 0) - (pad.keys.has('ArrowDown') ? 1 : 0));
       }
     };
     surface.addEventListener('keydown', event => {
       if (!arrows.includes(event.key) || !canDrag() || pad.pointer !== null) return;
       event.preventDefault(); pad.keys.add(event.key);
-      if (pad.side === 'left' && ['ArrowUp', 'ArrowDown'].includes(event.key)) {
+      if (pad.hold && ['ArrowUp', 'ArrowDown'].includes(event.key)) {
         axes[pad.y] = Math.max(-1, Math.min(1, axes[pad.y] + (event.key === 'ArrowUp' ? .05 : -.05)));
       }
       keyboardPosition();
@@ -144,7 +147,7 @@
       if (!flightReady() || ((sawSession || Date.now() - startedAt > 1000) && (!state.active || state.session !== session))) leave();
     }
     const task = snapshot?.motion || {};
-    const protectedTask = task.state === 'landing';
+    const protectedTask = ['landing','running'].includes(task.state);
     const ownActive = !!session;
     $('toggle-joystick').disabled = actionBusy || !available || (!ownActive &&
       (state.active || px4.mode !== 'OFFBOARD' || protectedTask));
@@ -154,12 +157,16 @@
     $('joystick-note').textContent = !controlOwned ? '先开启上方实机控制，再启用双摇杆。' :
       !px4.connected ? '飞控状态未知，不能启用摇杆。' :
       px4.mode !== 'OFFBOARD' ? '先切换OFFBOARD，再启用双摇杆。' :
-      protectedTask ? 'PX4正在执行降落，摇杆不混入降落指令。' :
+      protectedTask ? '其他运动任务执行中，请先停止当前控制，再启用摇杆。' :
       state.state === 'failed' ? state.message :
-      px4.armed === true ? '已解锁：升降杆松手保持，拖回中线停止升降；其余轴松手回中。' :
+      px4.armed === true ? '已解锁：升降杆松手保持，拖回中线后锁定高度；右杆回中锁定水平位置。' :
       '未解锁地面调试：可发送摇杆设定值，不自动解锁；实际动作需手动解锁。';
-    const names = {monitor: '只读监测', zero: '零速度', hold: '位置保持', task: '自动运动', joystick: '双摇杆', px4_land: 'PX4降落'};
-    $('control-source').textContent = names[snapshot?.control?.source] || '未知';
+    const names = {monitor: '只读监测', zero: '零速度', hold: '位置保持', task: '自动运动', vision: '视觉偏航/升降', joystick: '双摇杆', px4_land: 'PX4降落'};
+    const control = snapshot?.control || {};
+    const native = control.setpoint;
+    const locked = native?.position?.map((value, index) => Number.isFinite(value) ? ['X', 'Y', 'Z'][index] : '').filter(Boolean).join('/');
+    $('control-source').textContent = (names[control.source] || '未知') +
+      (px4.connected && control.controller === 'px4_position' ? ` · PX4位置闭环 ${locked || ''}` : '');
     $('stick-age').textContent = px4.connected && Number.isFinite(state.input_age_s) ? state.input_age_s.toFixed(2) + ' s' : '—';
     $('stick-command').textContent = px4.connected && Array.isArray(state.command_ned) ?
       state.command_ned.slice(0, 3).map(n => Number.isFinite(n) ? n.toFixed(2) : '—').join(' / ') + ' m/s' : '—';
@@ -179,6 +186,7 @@
   document.addEventListener('visibilitychange', () => { if (document.visibilityState !== 'visible') leave(); });
   window.joystickPanel = {render, suspend, leave};
   pads.forEach(paint);
+  window.addEventListener('resize', () => pads.forEach(paint));
   updateControlButtons();
   setInterval(pulse, 100);
 })();

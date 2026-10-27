@@ -27,3 +27,9 @@ data/
 *.zip
 *.tar.gz
 *.tsbuildinfo
+flight_records/
+mission_runs/
+ros2_ws/log/
+config/backups/
+vision/camera/bin/
+*.so

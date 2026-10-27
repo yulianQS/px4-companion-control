@@ -1,0 +1,118 @@
+{
+  "blocks": [
+    {
+      "auto_next": true,
+      "branches": {},
+      "id": "m-mv6i68am-b41bbb474d1b64d11d08",
+      "name": "自动起飞",
+      "next": "m-mv6eb43l-4c4e848c37d83ae7b00a",
+      "params": {
+        "acceleration": 0.3,
+        "height": 0.5,
+        "speed": null,
+        "tolerance": 0.05
+      },
+      "status": "pending",
+      "timeout": 120.0,
+      "type": "takeoff"
+    },
+    {
+      "auto_next": true,
+      "branches": {},
+      "id": "m-mv6eb43l-4c4e848c37d83ae7b00a",
+      "name": "搜索并确认目标",
+      "next": "m-mv6eb43l-11238e9dda8d7947c9da",
+      "params": {
+        "approach_acceleration": 0.2,
+        "approach_speed": 0.1,
+        "confirm_seconds": 0.5,
+        "forward_distance": 0.5,
+        "local_scan_angle": 10,
+        "local_search_seconds": 2,
+        "max_attempts": 5,
+        "scan_angle": 30,
+        "scan_speed": 30,
+        "speed": 0.2,
+        "target_id": 0,
+        "target_type": "apriltag36h11"
+      },
+      "status": "pending",
+      "timeout": 120.0,
+      "type": "search"
+    },
+    {
+      "auto_next": true,
+      "branches": {},
+      "id": "m-mv6eb43l-11238e9dda8d7947c9da",
+      "name": "视觉对准",
+      "next": "m-mv6eb43l-2a79b9db4a14738e9e30",
+      "params": {
+        "adjust_speed": 4,
+        "coarse_horizontal_threshold": 80,
+        "coarse_settle_seconds": 0.1,
+        "coarse_vertical_threshold": 60,
+        "distance_tolerance": 0.1,
+        "duration": 5,
+        "horizontal_threshold": 15,
+        "lost_target": "m-mv6eb43l-4c4e848c37d83ae7b00a",
+        "lost_timeout": 3,
+        "max_distance": 5,
+        "settle_seconds": 1,
+        "target_distance": 0.1,
+        "target_id": 0,
+        "target_type": "apriltag36h11",
+        "vertical_threshold": 15,
+        "yaw_speed": 0
+      },
+      "status": "pending",
+      "timeout": 120.0,
+      "type": "align"
+    },
+    {
+      "auto_next": true,
+      "branches": {},
+      "id": "m-mv6eb43l-2a79b9db4a14738e9e30",
+      "name": "距离保持",
+      "next": "m-mvhyx173-a2feafe155d96cb8f5e6",
+      "params": {
+        "adjust_speed": 4,
+        "distance_tolerance": 0.1,
+        "duration": 5,
+        "horizontal_threshold": 15,
+        "lost_target": "m-mv6eb43l-4c4e848c37d83ae7b00a",
+        "lost_timeout": 3,
+        "max_distance": 5,
+        "settle_seconds": 1,
+        "target_distance": 0.1,
+        "target_id": 0,
+        "target_type": "apriltag36h11",
+        "vertical_threshold": 15,
+        "yaw_speed": 0
+      },
+      "status": "pending",
+      "timeout": 120.0,
+      "type": "distance"
+    },
+    {
+      "auto_next": false,
+      "branches": {},
+      "id": "m-mvhyx173-a2feafe155d96cb8f5e6",
+      "name": "相对位移",
+      "next": "m-mv6eb43l-4c4e848c37d83ae7b00a",
+      "params": {
+        "acceleration": 1,
+        "direction": "back",
+        "distance": 1,
+        "speed": 2,
+        "tolerance": 0.1
+      },
+      "status": "pending",
+      "timeout": 120.0,
+      "type": "move"
+    }
+  ],
+  "entry": "m-mv6i68am-b41bbb474d1b64d11d08",
+  "id": "m-mv6eb43k-15dde7e40d22b3638351",
+  "name": "室内单目标飞行与视觉流程",
+  "version": 1
+}

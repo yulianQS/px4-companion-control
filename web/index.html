@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="zh-CN">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>航迹 · PX4 比赛控制台</title><link rel="stylesheet" href="/style.css"><script src="/app.js" defer></script><script src="/joystick.js" defer></script></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>航迹 · PX4 比赛控制台</title><link rel="stylesheet" href="/style.css"><link rel="stylesheet" href="/mission.css"><script src="/app.js" defer></script><script src="/map3d.js" defer></script><script src="/joystick.js" defer></script><script src="/cpp_controls.js" defer></script><script src="/motion_workspace.js" defer></script><script src="/vision_ros.js" defer></script><script src="/mission_model.js" defer></script><script src="/mission_ui.js" defer></script></head>
 <body>
 <aside class="sidebar">
   <a class="brand" href="#overview"><span class="brand-symbol">✣</span><span>航迹<small>FLIGHT WORKSPACE</small></span></a>
@@ -8,29 +8,28 @@
   <div class="nav-label">工作空间</div>
   <nav aria-label="主要导航">
     <button data-page="overview" class="active"><span>◈</span>飞行总览<em>01</em></button>
-    <button data-page="motion"><span>⌖</span>运动任务<em>02</em></button>
+    <button data-page="motion"><span>⌖</span>运动控制<em>02</em></button>
     <button data-page="tests"><span>☷</span>测试中心<em>03</em></button>
     <button data-page="mission"><span>◇</span>比赛编排<em>04</em></button>
     <button data-page="parameters"><span>≋</span>参数工作台<em>05</em></button>
     <button data-page="records"><span>◷</span>本次记录<em>06</em></button>
   </nav>
-  <div class="sidebar-bottom"><span class="tag dark">实机控制 v0.6.1</span><p>从一次可靠的测试开始。</p><small>UART7 · MAVLink 2<br>断联与接管验证：暂缓</small></div>
+  <div class="sidebar-bottom"><span class="tag dark">C++控制 v1.0</span><p>从一次可靠的测试开始。</p><small>UART7 · MAVLink 2<br>断联与接管验证：暂缓</small></div>
 </aside>
 <div class="workspace">
   <header><div class="breadcrumb">工作空间 <span>/</span> <b id="breadcrumb">飞行总览</b></div><div class="header-right"><span id="source-badge" class="tag amber">等待飞控</span><span class="tag">局域网</span><span id="clock">--:--:--</span></div></header>
   <main>
     <div class="page-heading"><div><div class="eyebrow">COMPANION CONTROL / PX4</div><h1 id="page-title">飞行总览<span class="title-dot">.</span></h1><p id="page-subtitle">看清状态，再开始下一项任务。</p></div><div class="heading-action"><span class="tag cyan">真实 MAVLink</span><button id="open-motion" class="button primary">创建实机运动任务 ↗</button></div></div>
-    <div class="notice"><span>ⓘ</span><div><b>实机数据与基本控制已接入</b> 下方操作会真实发送给飞控。模式、解锁、平移、转向、升降、起飞和降落均会实际发送控制。摇杆支持未解锁地面调试，解锁和上锁由你操作。比赛编排和参数页仍为草稿。<span id="monitor-note">等待 UART7 飞控心跳。</span></div></div>
+    <div class="notice"><span>ⓘ</span><div><b>实机数据与基本控制已接入</b> 下方操作会真实发送给飞控。模式、解锁、平移、转向、升降、起飞和降落均会实际发送控制。摇杆支持未解锁地面调试，解锁和上锁由你操作。比赛编排支持真实任务调度；未接通积木标记为仅编辑。视觉参数与比赛共用持久化默认值。<span id="monitor-note">等待 UART7 飞控心跳。</span></div></div>
 
-    <article class="card real-control">
-      <div class="card-head"><div><span class="eyebrow">LIVE / HARDWARE CONTROL</span><h2>真实飞控操作</h2></div><span id="control-badge" class="tag amber">只读观察</span></div>
-      <div class="control-grid"><div><button id="toggle-control" class="button primary" aria-pressed="false">启用实机控制</button><p class="muted">开启后可以操作实机。地面关闭会先上锁、退出Offboard；空中关闭会请求降落，确认落地上锁后关闭。</p></div>
-      <div><label>飞行模式<select id="flight-mode"><option value="OFFBOARD">OFFBOARD · 伴随计算机</option><option value="LOITER">LOITER · 保持</option><option value="POSCTL">POSCTL · 位置</option><option value="ALTCTL">ALTCTL · 高度</option><option value="STABILIZED">STABILIZED · 自稳</option></select></label><button id="set-mode" class="button" disabled>实际切换模式</button><p class="muted">只允许未解锁时切换；Offboard 预发送零速度1.5秒，再等待回执和心跳。</p></div>
-      <div><button id="arm-flight" class="button danger" disabled>解锁</button><button id="disarm-flight" class="button" disabled>上锁 / 停转</button><p class="muted">普通解锁由PX4检查；网页不再附加10秒自动上锁。解锁时清除地面调试杆量，重新启用摇杆后操纵。</p></div></div>
-      <pre id="action-result" role="status" aria-live="polite">尚未提交真实操作。请求发送、飞控回执、最终状态分别显示。</pre>
-    </article>
+
 
     <section id="page-overview" class="page active">
+      <article class="card connection-card"><div class="card-head"><div><span class="eyebrow">PYTHON GUI / C++ SERVICE</span><h2>机载控制服务连接</h2></div><span id="cpp-connection" class="tag">等待连接</span></div>
+        <div class="field-row"><label>C++服务 IP（由Python后端连接）<input id="cpp-host" value="127.0.0.1" aria-label="机载控制服务IP"></label><label>TCP端口<input id="cpp-port" type="number" min="1" max="65535" value="8090"></label></div>
+        <div class="trajectory-actions"><button id="cpp-connect" class="button primary">连接</button><button id="cpp-disconnect" class="button">断开</button></div><p id="cpp-status" class="muted">现有网页由Python提供；控制循环、坐标转换和CSV记录全部在C++中。开发板本机连接使用127.0.0.1。</p>
+      </article>
+
       <div class="metrics">
         <article class="metric"><div>飞控模式 <span>↗</span></div><strong id="metric-mode">未知</strong><small id="metric-arm">等待心跳</small></article>
         <article class="metric"><div>电池电压 <span>ϟ</span></div><strong><span id="metric-battery">—</span><i> V</i></strong><small id="battery-caption">等待电压遥测</small></article>
@@ -38,7 +37,7 @@
         <article class="metric"><div>飞控心跳年龄 <span>⌁</span></div><strong><span id="metric-heartbeat">—</span><i> s</i></strong><small id="link-caption">等待心跳</small></article>
       </div>
       <div class="overview-grid">
-        <article class="card camera-card"><div class="card-head"><div><span class="eyebrow">VISION / FRONT CAMERA</span><h2>前置视觉</h2></div><span class="tag" id="camera-badge">画面未连接</span></div><div class="camera-stage"><img id="camera-image" alt="前置摄像头实时画面" hidden><div id="camera-placeholder"><div class="camera-grid"></div><div class="crosshair"></div><div class="camera-center"><span>⌖</span><h3>等待摄像头画面</h3><p>视觉服务暂未接入此入口，当前先验证飞控控制</p><button class="button ghost" id="camera-connect">查看视觉接入状态</button></div></div><div class="camera-overlay"><span>IMX219 · CAM1</span><span id="target-text">APRILTAG 36h11 / 目标 ID 0</span></div></div><div class="camera-footer"><span><i class="status-dot"></i>视觉追踪未接入运动控制</span><span id="vision-center">中心坐标 —</span></div></article>
+
         <article class="card"><div class="card-head"><div><span class="eyebrow">READINESS</span><h2>当前状态</h2></div><span class="number-label">01—05</span></div><div class="readiness" id="readiness"></div><div class="card-note">状态用于观察。有效标志并不等于已完成飞行验证。</div></article>
         <article class="card"><div class="card-head"><div><span class="eyebrow">ATTITUDE</span><h2>姿态与局部位置</h2></div><span class="tag">监测</span></div><div class="attitude"><div><small>横滚 ROLL</small><b id="roll">—</b></div><div><small>俯仰 PITCH</small><b id="pitch">—</b></div><div><small>偏航 YAW</small><b id="yaw">—</b></div></div><div class="position-row"><span>X <b id="pos-x">—</b> m</span><span>Y <b id="pos-y">—</b> m</span><span>Z <b id="pos-z">—</b> m</span></div></article>
         <article class="card next-card"><span class="eyebrow">LIVE TELEMETRY</span><h2>速度、供电与传感器</h2><div class="telemetry-grid"><span>局部X速度 <b id="vel-x">—</b> m/s</span><span>局部Y速度 <b id="vel-y">—</b> m/s</span><span>下向速度 <b id="vel-z">—</b> m/s</span><span>电池电流 <b id="battery-current">—</b> A</span><span>剩余电量 <b id="battery-remaining">—</b> %</span><span>飞控CPU <b id="cpu-load">—</b> %</span><span>下视测距 <b id="range-m">—</b> m</span><span>光流质量 <b id="flow-quality">—</b></span></div><p class="muted">速度为 LOCAL_NED 坐标；未收到、过期或未知值显示 —。传感器未转发到TELEM1时不代表硬件缺失。</p><button class="text-button" id="next-motion">前往实机运动任务 →</button></article>
@@ -46,14 +45,46 @@
     </section>
 
     <section id="page-motion" class="page">
-      <article class="card joystick-card" aria-labelledby="joystick-title">
+    <article class="card real-control">
+      <div class="card-head"><div><span class="eyebrow">LIVE / HARDWARE CONTROL</span><h2>飞控与起降</h2></div><a class="button" href="#overview">连接与遥测</a><span id="control-badge" class="tag amber">只读观察</span></div>
+      <div class="control-grid"><div><button id="toggle-control" class="button primary" aria-pressed="false">启用实机控制</button><p class="muted">开启后可以操作实机。停用实机控制统一请求 LAND。确认 LAND 后由飞控降落，确认落地且上锁后关闭控制；不会自动切回其他模式。</p></div>
+      <div><label>飞行模式<select id="flight-mode"><option value="OFFBOARD">OFFBOARD · 伴随计算机</option><option value="LOITER">LOITER · 保持</option><option value="POSCTL">POSCTL · 位置</option><option value="ALTCTL">ALTCTL · 高度</option><option value="STABILIZED">STABILIZED · 自稳</option></select></label><button id="set-mode" class="button" disabled>实际切换模式</button><p class="muted">只允许未解锁时切换；Offboard 预发送零速度1.5秒，再等待回执和心跳。</p></div>
+      <div><button id="arm-flight" class="button danger" disabled>解锁</button><button id="disarm-flight" class="button" disabled>上锁 / 停转</button><p class="muted">普通解锁由PX4检查；网页不再附加10秒自动上锁。解锁时清除地面调试杆量，重新启用摇杆后操纵。</p></div></div>
+      <div class="flight-launch-row"><div class="field-row"><label>目标起飞高度 / m<input id="takeoff-height" type="number" value="0.5" min="0.1" max="5" step="0.05" required></label><label>PX4起飞速度 / m/s<input id="takeoff-speed" type="number" readonly placeholder="等待飞控参数"></label></div><div class="disabled-actions"><button id="takeoff-flight" class="button" disabled>实际起飞</button><button id="land-flight" class="button" disabled>实际降落</button></div><small class="muted">手动解锁后由 C++ 记录起飞地面 Z，按相对高度生成轨迹，复用 PX4 Offboard 位置控制。0.5米表示从本次起飞地面上升0.5米；不写入 MIS_TAKEOFF_ALT。速度读取 MPC_TKO_SPEED，到高稳定后保持；起飞中可请求 LAND。</small></div>
+      <pre id="action-result" role="status" aria-live="polite">尚未提交真实操作。请求发送、飞控回执、最终状态分别显示。</pre>
+    </article>
+<div class="motion-selector" role="group" aria-label="控制类别">
+<button class="button selected" data-motion-panel="vision" aria-pressed="true">视觉控制</button><button class="button" data-motion-panel="joystick" aria-pressed="false">摇杆控制</button><button class="button" data-motion-panel="task" aria-pressed="false">任务控制</button></div>
+<div class="motion-console-grid"><div class="motion-workspace">
+<div id="motion-panel-vision" class="motion-panel"><article class="card vision-control-card"><div class="card-head"><div><span class="eyebrow">VISION / DISTANCE PID</span><h2>视觉偏航、升降与前后跟随</h2></div><span id="vision-control-badge" class="tag">等待节点</span></div>
+<p class="muted">左右图像误差控制偏航，上下图像误差控制升降。内参 + AprilTag 四角点求相机前向距离，距离大于设定值时前进、小于时后退。相机朝机头正前方安装。</p>
+<p id="vision-calibration-status" class="muted">等待标定状态</p><p id="vision-control-live" class="muted">等待控制输出</p>
+<form id="vision-control-form"><h3>目标距离控制</h3><p id="vision-distance-live" role="status">当前距离：等待目标</p><label>希望与目标保持的距离 / m<input id="vision-target-distance" type="number" step="any" min="0.000001" value="1" required></label><p id="vision-distance-error" class="muted">距离偏差：等待目标</p><div class="trajectory-actions"><button id="vision-distance-apply" class="button primary" type="submit">确定距离并保存</button></div><p class="muted">填入米数后点击确定；运行中立即应用，并保存当前参数为下次默认值。</p><div class="field-row"><label>目标 AprilTag ID<input type="number" value="0" readonly></label><label>标记黑色正方形边长 / m<input id="vision-tag-size" type="number" step="any" min="0.000001" value="0.12" required></label></div>
+<label class="checkbox-label"><input id="vision-distance-enabled" type="checkbox" checked>启用前后距离控制</label><label class="checkbox-label"><input id="vision-vertical-enabled" type="checkbox" checked>启用升降控制</label>
+<h3>偏航 PID</h3><div class="field-row"><label>Kp<input id="vision-yaw-gain" type="number" step="any" value="0.3" required></label><label>Ki<input id="vision-yaw-ki" type="number" step="any" value="0" required></label><label>Kd<input id="vision-yaw-kd" type="number" step="any" value="0" required></label></div><label>偏航速度幅值 / rad/s（0 按 PID 原值输出）<input id="vision-yaw-speed" type="number" step="any" min="0" value="0" required></label><h3>升降 PID</h3><div class="field-row"><label>Kp<input id="vision-vertical-gain" type="number" step="any" value="0.15" required></label><label>Ki<input id="vision-vertical-ki" type="number" step="any" value="0" required></label><label>Kd<input id="vision-vertical-kd" type="number" step="any" value="0" required></label></div><label>升降速度幅值 / m/s（0 按 PID 原值输出）<input id="vision-vertical-speed" type="number" step="any" min="0" value="0" required></label><h3>俯仰/前后距离 PID</h3><div class="field-row"><label>Kp<input id="vision-distance-gain" type="number" step="any" value="0.3" required></label><label>Ki<input id="vision-distance-ki" type="number" step="any" value="0" required></label><label>Kd<input id="vision-distance-kd" type="number" step="any" value="0" required></label></div><label>前后距离速度幅值 / m/s（0 按 PID 原值输出）<input id="vision-forward-speed" type="number" step="any" min="0" value="0" required></label>
+<h3>横滚/横移 PID</h3><label class="checkbox-label"><input id="vision-lateral-enabled" type="checkbox">启用横移控制</label><div class="field-row"><label>Kp<input id="vision-lateral-gain" type="number" step="any" value="0.15" required></label><label>Ki<input id="vision-lateral-ki" type="number" step="any" value="0" required></label><label>Kd<input id="vision-lateral-kd" type="number" step="any" value="0" required></label></div><label>横移速度幅值 / m/s（0 按 PID 原值输出）<input id="vision-lateral-speed" type="number" step="any" min="0" value="0" required></label>
+<p class="muted">四轴共用开发板的一份视觉外环参数，各轴分别调节。偏航、升降、横移输入为归一化像素误差，前后距离输入为米。横移默认关闭，开启后与偏航共同消除水平误差。输出为速度/偏航角速度，由 PX4 原控制器执行。速度幅值 0 表示不截断；I、D 默认 0。</p>
+<div class="trajectory-actions"><button id="vision-apply" class="button primary" type="submit">保存下次启动参数</button><button id="vision-toggle-preview" class="button" type="button" disabled>等待节点</button></div></form>
+<p id="vision-config-result" class="muted" role="status">参数保存在当前浏览器；启动时提交机载C++，运行中可直接应用。</p>
+<hr><form id="vision-flight-form"><p class="muted">保留任务互斥与飞行状态检查；不增加死区、加速度、任务时长、位移及网页续期限制。没有图像目标时保持等待；没有米制距离时仅运行偏航/升降。</p><div class="trajectory-actions"><button id="vision-flight-start" class="button primary" type="submit" disabled>启动实际视觉控制</button><button id="vision-flight-stop" class="button" type="button" disabled>停止视觉 / 位置保持</button></div></form>
+<p id="vision-flight-note" class="muted" role="status">完成起飞后启动视觉控制；与摇杆、其他任务及降落互斥。</p></article></div>
+<div id="motion-panel-joystick" class="motion-panel" hidden><article class="card joystick-card" aria-labelledby="joystick-title">
         <div class="card-head"><div><span class="eyebrow">VIRTUAL STICKS / OFFBOARD</span><h2 id="joystick-title">双摇杆操纵</h2></div><span id="joystick-badge" class="tag">未接管</span></div>
         <div class="joystick-toolbar"><div><p id="joystick-note" role="status" aria-live="polite">进入OFFBOARD后可启用摇杆，支持未解锁地面调试；实际动作需手动解锁。</p><span class="muted">平移 ≤0.20 m/s · 升降 ≤0.20 m/s · 偏航 ≤30°/s · 升降杆松手保持，其他轴回中</span></div><button id="toggle-joystick" class="button primary" aria-pressed="false" disabled>启用双摇杆</button></div>
         <div class="joystick-pair">
-          <div class="joystick-unit"><div class="joystick-heading"><b>左杆</b><span>油门 / 偏航</span></div>
-            <div id="stick-left" class="stick-pad" tabindex="0" role="group" aria-label="左摇杆，上下升降，左右偏航" aria-disabled="true">
-              <span class="stick-direction north">上升</span><span class="stick-direction south">下降</span><span class="stick-direction west">左转</span><span class="stick-direction east">右转</span><span class="stick-cross horizontal"></span><span class="stick-cross vertical"></span><span class="stick-ring"></span><span id="knob-left" class="stick-knob"></span>
-            </div><div class="stick-values"><span>升降杆 <b id="stick-throttle">0%</b></span><span>偏航杆 <b id="stick-yaw">0%</b></span></div>
+          <div class="joystick-unit"><div class="joystick-heading"><b>左侧控制</b><span>升降与偏航独立</span></div>
+            <div class="split-controls">
+              <div class="split-control"><span class="split-label">升降 · 松手保持</span>
+                <div id="stick-throttle-control" class="stick-pad stick-axis vertical-axis" tabindex="0" role="group" aria-label="升降速度杆，上下拖动或方向键调整，松手保持，回中停止升降" aria-disabled="true">
+                  <span class="stick-direction north">上升</span><span class="stick-direction south">下降</span><span class="stick-cross vertical"></span><span class="axis-neutral"></span><span id="knob-throttle-control" class="stick-knob"></span>
+                </div><div class="stick-values"><span>升降杆 <b id="stick-throttle">0%</b></span></div>
+              </div>
+              <div class="split-control"><span class="split-label">偏航 · 松手回中</span>
+                <div id="stick-yaw-control" class="stick-pad stick-axis horizontal-axis" tabindex="0" role="group" aria-label="偏航速度杆，左右拖动或方向键控制，松手回中" aria-disabled="true">
+                  <span class="stick-direction west">左转</span><span class="stick-direction east">右转</span><span class="stick-cross horizontal"></span><span class="axis-neutral"></span><span id="knob-yaw-control" class="stick-knob"></span>
+                </div><div class="stick-values"><span>偏航杆 <b id="stick-yaw">0%</b></span></div>
+              </div>
+            </div>
           </div>
           <div class="joystick-unit"><div class="joystick-heading"><b>右杆</b><span>俯仰 / 横滚</span></div>
             <div id="stick-right" class="stick-pad" tabindex="0" role="group" aria-label="右摇杆，上下前后移动，左右侧移" aria-disabled="true">
@@ -61,21 +92,88 @@
             </div><div class="stick-values"><span>俯仰杆 <b id="stick-pitch">0%</b></span><span>横滚杆 <b id="stick-roll">0%</b></span></div>
           </div>
         </div>
-        <div class="joystick-feedback"><span>控制来源 <b id="control-source">监测</b></span><span>板端输入年龄 <b id="stick-age">—</b></span><span>板端目标速度 NED <b id="stick-command">—</b></span></div>
-        <p class="muted">左杆升降轴松手保持，拖回中线停止升降；保持的是升降速度，不是高度或电机推力。偏航与右杆松手回中。支持双指或鼠标，聚焦左杆用上下键按5%调整升降，松键保持；其余方向键松键归中。摇杆接管会取消当前运动或起飞任务，LAND由PX4完成。退出、页面失焦、切页或输入停更仍清零。</p>
-      </article>
-
-      <div class="two-column"><article class="card"><div class="card-head"><div><span class="eyebrow">TASK BUILDER</span><h2>定义一项运动</h2></div><span class="tag cyan">实机执行</span></div><div class="segmented" id="task-types"><button class="selected" data-kind="move">平移</button><button data-kind="rotate">转向</button><button data-kind="height">升降</button></div><form id="task-form"><label>运动方向<select id="direction"><option value="forward">向前</option><option value="right">向右</option><option value="back">向后</option><option value="left">向左</option></select></label><div class="field-row"><label><span id="distance-label">目标距离 / m</span><input id="distance" type="number" value="1" min="0.1" max="5" step="0.1" required></label><label><span id="speed-label">速度上限 / m/s</span><input id="speed" type="number" value="0.2" min="0.05" max="0.5" step="0.05" required></label></div><div class="field-row"><label>允许误差<input id="tolerance" type="number" value="0.05" min="0.01" max="0.5" step="0.01" required></label><label>任务超时 / s<input id="timeout" type="number" value="15" min="2" max="120" step="1" required></label></div><div class="explanation" id="frame-explanation">方向以任务开始时的机头为准；运动途中改变航向，不改变既定方向。</div><button id="start-task" class="button primary full" type="submit" disabled>执行实机任务 →</button></form><div class="field-row"><label>起飞相对高度 / m<input id="takeoff-height" type="number" value="0.5" min="0.1" max="2" step="0.1"></label><label>起飞速度 / m/s<input id="takeoff-speed" type="number" value="0.2" min="0.05" max="0.3" step="0.05"></label></div><div class="disabled-actions"><button id="takeoff-flight" class="button" disabled>实际起飞</button><button id="land-flight" class="button" disabled>实际降落</button></div><small class="muted">先进入OFFBOARD并手动解锁。起飞默认30秒超时；降落由PX4 LAND执行并检查落地、上锁反馈。</small></article>
-      <article class="card task-view"><div class="card-head"><div><span class="eyebrow">LIVE TASK FEEDBACK</span><h2>实机任务反馈</h2></div><span id="task-state" class="tag">待机</span></div><div class="map-stage"><svg id="map" viewBox="0 0 480 300" role="img" aria-label="任务实测轨迹"><defs><pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse"><path d="M30 0H0V30" fill="none" stroke="#dae3e7" stroke-width="1"/></pattern></defs><rect width="480" height="300" fill="url(#grid)"/><line x1="240" y1="30" x2="240" y2="270" stroke="#bccbd0"/><line x1="30" y1="150" x2="450" y2="150" stroke="#bccbd0"/><text x="251" y="26">任务开始时机头方向 ↑</text><path id="route-path" visibility="hidden" d="M240 210 L240 80" fill="none" stroke="#08989f" stroke-width="3" stroke-dasharray="7 6"/><circle id="target-point" visibility="hidden" cx="240" cy="80" r="7" fill="#f9a747"/><g id="drone-marker" visibility="hidden" transform="translate(240 210)"><circle r="17" fill="#123138"/><path d="M0 -10 L8 7 L0 3 L-8 7Z" fill="#fff"/></g><text x="16" y="282">相对实测位置 · 按目标距离缩放</text></svg></div><div class="task-summary" id="task-summary">尚未提交实机任务。先进入OFFBOARD并解锁，起飞后执行运动。</div><div class="progress"><div id="task-progress"></div></div><div class="task-stats"><span>实测进度 <b id="task-percent">0%</b></span><span>已用时间 <b id="task-elapsed">0.0 s</b></span></div><div class="task-stats"><span>实测变化 <b id="task-measured">—</b></span><span>剩余误差 <b id="task-error">—</b></span></div><button id="cancel-task" class="button full" disabled>取消运动 / 保持当前位置</button><p class="muted">进度来自飞控位置与偏航反馈，完成需误差达标并稳定。取消不是电机停转；PX4 LAND降落不提供一键取消。</p></article></div>
-    </section>
+        <div class="joystick-feedback"><span>控制来源 <b id="control-source">监测</b></span><span>板端输入年龄 <b id="stick-age">—</b></span><span>速度目标 / 前馈 NED <b id="stick-command">—</b></span></div>
+        <p class="muted">左侧独立升降杆松手保持，拖回中线停止升降；保持的是升降速度，不是高度或电机推力。定位有效且已解锁时，右杆回中由PX4锁定水平位置，升降杆回中锁定局部高度，偏航回中锁定航向。支持多指或鼠标，聚焦升降杆用上下键按5%调整升降，松键保持；其余方向键松键归中。启用摇杆前需先停止当前运动任务；起飞期间暂不允许摇杆接管，LAND由PX4完成。退出、页面失焦、切页或输入停更仍清零。</p>
+      </article></div>
+<div id="motion-panel-task" class="motion-panel" hidden><details class="task-control-block" open><summary>平移 / 转向 / 升降</summary><article class="card"><div class="card-head"><div><span class="eyebrow">TASK BUILDER</span><h2>定义一项运动</h2></div><span class="tag cyan">实机执行</span></div><div class="segmented" id="task-types"><button class="selected" data-kind="move">平移</button><button data-kind="rotate">转向</button><button data-kind="height">升降</button></div><form id="task-form"><label>运动方向<select id="direction"><option value="forward">向前</option><option value="right">向右</option><option value="back">向后</option><option value="left">向左</option></select></label><div class="field-row"><label><span id="distance-label">目标距离 / m</span><input id="distance" type="number" value="1" min="0.1" max="5" step="0.1" required></label><label><span id="speed-label">速度上限 / m/s</span><input id="speed" type="number" value="0.2" required min="0.000001" step="any"></label></div><div class="field-row"><label>允许误差<input id="tolerance" type="number" value="0.05" min="0.01" max="0.5" step="0.01" required></label><label>任务超时 / s<input id="timeout" type="number" value="15" min="2" max="120" step="1" required></label></div><div class="explanation" id="frame-explanation">方向以任务开始时的机头为准；运动途中改变航向，不改变既定方向。</div><button id="start-task" class="button primary full" type="submit" disabled>执行实机任务 →</button></form></article></details><details class="task-control-block"><summary>预设轨迹</summary><article class="card"><div class="card-head"><div><span class="eyebrow">TRAJECTORY PARAMETERS</span><h2>预设轨迹</h2></div><span class="tag">板端规划</span></div>
+          <form id="cpp-trajectory-form"><label>轨迹类型<select id="cpp-trajectory-type"><option value="hover">定点悬停</option><option value="line">直线</option><option value="circle">圆形</option><option value="rectangle">矩形</option><option value="waypoints">自定义航点</option></select></label>
+          <label data-for="hover line circle rectangle">局部高度 / m（目标NED Z = -高度）<input id="cpp-traj-height" type="number" value="0.5" min="0.1" max="4.5" step="0.1"></label>
+          <label data-for="hover">悬停时段 / s<input id="cpp-traj-duration" type="number" value="5" min="1" max="600"></label>
+          <label data-for="line rectangle">局部X方向长度 / m<input id="cpp-traj-length" type="number" value="1" min="0.1" max="5" step="0.1"></label>
+          <label data-for="rectangle">局部Y方向宽度 / m<input id="cpp-traj-width" type="number" value="1" min="0.1" max="5" step="0.1"></label>
+          <div class="field-row" data-for="circle"><label>半径 / m<input id="cpp-traj-radius" type="number" value="0.5" min="0.1" max="5" step="0.1"></label><label>角速度 / °/s<input id="cpp-traj-angular" type="number" value="10" min="0.000001" step="any"></label><label>圈数<input id="cpp-traj-turns" type="number" value="1" min="1" max="10" step="1"></label></div>
+          <label data-for="waypoints">航点JSON：[[X,Y,Z],…]，LOCAL_NED / cm<textarea id="cpp-waypoints" rows="4">[[0,0,-50],[50,0,-50],[50,50,-50],[0,0,-50]]</textarea></label>
+          <label>任务超时 / s<input id="cpp-traj-timeout" type="number" value="120" min="2" max="3600" step="1"></label><button class="button primary full" type="submit" data-cpp-flight>开始执行轨迹</button></form>
+          <p class="muted">先起飞，再启动轨迹。直线/矩形从当前水平位置开始，局部轴方向；圆形从当前水平位置沿+Y起步，起点是圆周点。速度保留≤0.20 m/s限制；所有轨迹计算、反馈判定与位置保持均由C++完成。</p>
+          <pre id="cpp-command-state" class="action-result" role="status">等待命令事件</pre>
+        </article></details><details class="task-control-block"><summary>位置 / 速度</summary><article class="card"><div class="card-head"><div><span class="eyebrow">NATIVE POSITION / LOCAL NED</span><h2>位置与速度设定</h2></div><span class="tag cyan">C++执行</span></div>
+          <p class="muted">位置使用局部NED原点：X/Y为局部水平轴，Z向下。输入cm由C++转换为米；不是相对移动量。</p>
+          <form id="cpp-position-form"><div class="field-row three-fields"><label>X / cm<input id="cpp-x" type="number" value="0" min="-10000" max="10000" step="1" required></label><label>Y / cm<input id="cpp-y" type="number" value="0" min="-10000" max="10000" step="1" required></label><label>Z / cm（负值在原点上方）<input id="cpp-z" type="number" value="-50" min="-10000" max="10000" step="1" required></label></div><button class="button primary" type="submit" data-cpp-flight>发送目标位置</button></form>
+          <hr><form id="cpp-velocity-form"><label>速度坐标系<select id="cpp-velocity-frame"><option value="LOCAL_NED">LOCAL_NED：局部X / Y / 下</option><option value="BODY_FRD">BODY_FRD：机头前 / 右 / 下</option></select></label>
+          <div class="field-row three-fields"><label>VX / m/s<input id="cpp-vx" type="number" value="0" step="0.01" required></label><label>VY / m/s<input id="cpp-vy" type="number" value="0" step="0.01" required></label><label>VZ / m/s<input id="cpp-vz" type="number" value="0" step="0.01" required></label></div>
+          <label>速度持续时间 / s（结束后捕获当前位置保持）<input id="cpp-velocity-duration" type="number" value="1" min="0.1" max="10" step="0.1" required></label><div class="trajectory-actions"><button class="button primary" type="submit" data-cpp-flight>发送速度</button><button class="button" type="button" id="cpp-velocity-stop" data-cpp-hold>停止速度 / 位置保持</button></div></form>
+          <div class="trajectory-actions"><button id="cpp-hold" class="button" data-cpp-hold>悬停 / 保持当前位置</button><button id="cpp-stop-trajectory" class="button" data-cpp-hold>停止轨迹 / 位置保持</button></div>
+          <p id="cpp-target" class="muted">等待C++目标状态</p>
+        </article></details></div></div><aside class="motion-monitor">        <article class="card camera-card"><div class="card-head"><div><span class="eyebrow">VISION / FRONT CAMERA</span><h2>前置视觉</h2></div><span class="tag" id="camera-badge">画面未连接</span></div><div class="camera-stage"><canvas id="camera-image" width="640" height="480" role="img" aria-label="前置摄像头实时画面" hidden></canvas><div id="camera-placeholder"><div class="camera-grid"></div><div class="crosshair"></div><div class="camera-center"><span>⌖</span><h3>等待摄像头画面</h3><p>启动ROS2视觉节点后显示画面；相机未标定，仅二维检测</p><button class="button ghost" id="camera-connect">查看视觉接入状态</button></div></div><div class="camera-overlay"><span>IMX219 · CAM1</span><span id="target-text">APRILTAG 36h11 / 目标 ID 0</span></div></div><div class="camera-footer"><span><i class="status-dot"></i>ROS2 检测 → C++飞控执行 · 需主动启用</span><span id="vision-center">中心坐标 —</span></div><p id="vision-message" class="muted">等待ROS2视觉节点</p><p id="vision-preview" class="muted">像素误差 —；偏航建议 0 rad/s；三维位姿不可用</p></article><article class="card motion-state-card"><div class="card-head"><h2>当前运动任务</h2><span id="task-state" class="tag">待机</span></div>        <div class="task-summary" id="task-summary">尚未提交实机任务。先进入OFFBOARD并解锁，起飞后执行运动。</div><div class="progress"><div id="task-progress"></div></div><div class="task-stats"><span>实测进度 <b id="task-percent">0%</b></span><span>已用时间 <b id="task-elapsed">0.0 s</b></span></div><div class="task-stats"><span>实测变化 <b id="task-measured">—</b></span><span>剩余误差 <b id="task-error">—</b></span></div><button id="cancel-task" class="button full" disabled>取消运动 / PX4位置保持</button><p class="muted">进度来自飞控位置与偏航反馈，完成需误差达标并稳定。取消不是电机停转；PX4 LAND降落不提供一键取消。</p></article></aside></div></section>
 
     <section id="page-tests" class="page"><div class="section-toolbar"><p>历史实测与离线检查分开记录，不自动重新运行硬件测试。</p><span class="tag">基准记录 · 2026-10-09</span></div><div id="test-grid" class="test-grid"></div></section>
 
-    <section id="page-mission" class="page"><div class="two-column"><article class="card"><div class="card-head"><div><span class="eyebrow">MISSION BLOCKS</span><h2>比赛任务积木</h2></div><span class="tag cyan">方案草稿</span></div><p class="muted">按比赛流程组合步骤；视觉策略与飞行执行尚未接通。</p><div id="mission-blocks" class="mission-blocks"></div><button id="preset-mission" class="button full">载入「搜索 → 对准 → 接近」示例</button></article><article class="card"><div class="card-head"><div><span class="eyebrow">SEQUENCE</span><h2>我的任务序列</h2></div><button id="clear-mission" class="text-button">清空</button></div><ol id="mission-list" class="mission-list"></ol><button id="preview-mission" class="button primary full">预览任务顺序</button><p id="mission-result" class="muted">编辑只保存在当前页面，刷新后重置。</p></article></div></section>
+    <section id="page-mission" class="page">
+      <article class="card mission-monitor">
+        <div class="card-head"><div><span class="eyebrow">COMPETITION / LIVE STATUS</span><h2 id="mission-run-title">比赛任务运行监控</h2></div><span id="mission-run-state" class="mission-state">待机</span></div>
+        <div class="mission-live-layout">
+          <div class="mission-camera">
+            <div class="mission-camera-heading"><b>前置视觉 · 实时画面</b><span id="mission-camera-badge" class="tag">画面未连接</span></div>
+            <div class="mission-camera-stage"><canvas id="mission-camera-image" width="640" height="480" role="img" aria-label="比赛前置摄像头实时画面" hidden></canvas><div id="mission-camera-placeholder">等待摄像头画面</div></div>
+            <p id="mission-camera-message" class="muted">等待 ROS2 视觉节点</p>
+          </div>
+          <div class="mission-live-status">
+        <div class="mission-metrics" id="mission-metrics"></div>
+        <div class="progress"><div id="mission-progress"></div></div>
+        <p id="mission-run-note" class="mission-run-note">未启动比赛任务。编排保存与预览不会执行飞行。</p>
+        <p id="mission-log-files" class="mission-run-note muted">任务日志与飞行 CSV 将在运行后显示。</p>
+        <div class="mission-toolbar"><button id="mission-start" class="button primary" disabled>启动比赛任务</button><button id="mission-stop" class="button" disabled>停止 / 位置保持</button><button id="mission-land" class="button danger" disabled>停止并降落</button><button id="mission-kill" class="button danger" title="立即请求强制上锁，空中点击会失去动力">一键停转电机</button><button id="mission-adopt-run" class="button" hidden>查看正在运行的编排</button></div>
+        <p class="muted">一键停转电机：直接请求强制上锁，终止任务；空中点击会失去动力。</p>
+          </div>
+        </div>
+        <p class="muted">飞行动作需先人工解锁。调度由 C++ 执行，关闭网页或 Python 后继续运行；停止自动起飞会请求 LAND。任务完成依赖真实反馈，不会自动解锁。执行中按已完成积木估算进度。</p>
+        <details><summary class="muted">本次运行事件</summary><ol id="mission-events" class="mission-events"></ol></details>
+      </article>
+      <div class="two-column mission-layout">
+        <article class="card"><div class="card-head"><div><span class="eyebrow">MISSION BLOCKS</span><h2>比赛任务积木</h2></div><button id="mission-collapse" class="text-button" aria-expanded="true">折叠积木库</button></div>
+          <p class="muted">复用 C++ 运动与视觉控制链路；“仅编辑”积木需要补充底层反馈。当前目标识别及控制仅支持 AprilTag 36h11 / ID 0。</p>
+          <label>搜索积木<input id="mission-search" type="search" placeholder="名称、描述或分类" autocomplete="off"></label>
+          <div id="mission-categories" class="mission-categories" role="group" aria-label="积木分类"></div>
+          <div id="mission-library"><div id="mission-blocks" class="mission-blocks"></div></div>
+          <button id="preset-mission" class="button full" data-mission-edit>载入「搜索 → 对准 → 接近」示例</button>
+          <div class="mission-toolbar"><label>比赛模板<select id="mission-template"><option value="indoor">室内飞行与视觉流程</option></select></label><button id="mission-load-template" class="button" data-mission-edit>载入模板</button></div>
+        </article>
+        <article class="card"><div class="card-head"><div><span class="eyebrow">SEQUENCE</span><h2>我的任务序列</h2></div><button id="clear-mission" class="text-button" data-mission-edit>清空</button></div>
+          <div class="mission-toolbar"><label>任务名称<input id="mission-name" maxlength="100" value="室内比赛任务" data-mission-edit></label><label>执行入口<select id="mission-entry" data-mission-edit></select></label></div>
+          <div class="mission-toolbar"><button id="mission-save" class="button" data-mission-edit>保存任务</button><button id="mission-copy" class="button" data-mission-edit>复制任务</button><button id="mission-export" class="button">导出 JSON</button><button id="mission-import-button" class="button" data-mission-edit>导入 JSON</button><input id="mission-import" type="file" accept=".json,application/json" hidden></div>
+          <div class="mission-toolbar"><label>已保存任务<select id="mission-saved" data-mission-edit><option value="">选择已保存任务</option></select></label><button id="mission-load" class="button" data-mission-edit>加载</button></div>
+          <div class="segmented"><button id="mission-list-mode" class="selected" aria-pressed="true">列表模式</button><button id="mission-flow-mode" aria-pressed="false">流程模式</button></div>
+          <p class="muted">拖动排序，点击任务配置参数；也可用 ↑ ↓ 调整。任务连接和目标丢失恢复均使用稳定实例 ID。</p>
+          <ol id="mission-list" class="mission-list" aria-label="比赛任务序列"></ol><div id="mission-flow" hidden></div>
+          <button id="preview-mission" class="button primary full">预览任务顺序</button><pre id="mission-result" aria-live="polite">草稿自动保存在当前浏览器；点击保存写入工程 missions 目录。预览不会启动实机。</pre>
+        </article>
+      </div>
+      <dialog id="mission-params-dialog" class="mission-dialog" aria-labelledby="mission-params-title"><form id="mission-params-form">
+        <div class="dialog-head"><h2 id="mission-params-title">积木参数</h2><button id="mission-params-close" type="button" class="text-button">关闭 ×</button></div>
+        <p id="mission-params-capability" class="muted"></p><div id="mission-params-fields" class="dialog-fields"></div><p id="mission-params-error" class="dialog-error" role="alert"></p>
+        <div class="dialog-footer"><button id="mission-params-cancel" type="button" class="button">取消</button><button class="button primary" type="submit">保存参数</button></div>
+      </form></dialog>
+    </section>
 
-    <section id="page-parameters" class="page"><div class="two-column"><article class="card"><div class="card-head"><div><span class="eyebrow">VISUAL CONTROLLER</span><h2>视觉控制参数草稿</h2></div><span class="tag cyan">浏览器内编辑</span></div><p class="muted">这些是方案参数，不是开发板正在使用的配置。</p><form id="parameter-form"><label>水平控制增益<input name="gain" type="number" min="0" max="2" step="0.01" value="0.15" required></label><label>最大平移速度 / m/s<input name="max_speed" type="number" min="0.05" max="0.5" step="0.05" value="0.2" required></label><label>图像中心死区 / px<input name="deadzone" type="number" min="0" max="100" step="1" value="15" required></label><label>目标丢失超时 / s<input name="lost_timeout" type="number" min="0.1" max="5" step="0.1" value="0.5" required></label><button class="button primary full">生成参数差异</button></form><pre id="parameter-diff">修改后可查看差异；不会写入飞控或文件。</pre></article><article class="card"><div class="card-head"><div><span class="eyebrow">PX4 INNER LOOPS</span><h2>飞控 PID 工作区</h2></div><span class="tag amber">未接入</span></div><div class="pid-diagram"><span>位置控制</span><i>↓</i><span>速度控制</span><i>↓</i><span>姿态控制</span><i>↓</i><span>角速度控制</span></div><p>后续按控制层读取参数、备份、比较和恢复。当前不展示编造的飞控 PID 数值。</p><button class="button full" disabled>读取飞控 PID</button><button class="button full" disabled>写入飞控参数</button></article></div></section>
+    <section id="page-parameters" class="page"><article class="card"><div class="card-head"><div><span class="eyebrow">VISUAL CONTROLLER</span><h2>视觉控制默认参数</h2></div><span class="tag cyan">开发板持久化</span></div><p class="muted">比赛积木与运动控制共用同一套视觉 PID、速度幅值和目标距离。请在运动控制的视觉面板中修改；保存后重启仍保留。</p><button id="open-vision-defaults" class="button primary">打开视觉控制参数</button></article></section>
 
-    <section id="page-records" class="page"><article class="card"><div class="card-head"><div><span class="eyebrow">SESSION NOTES</span><h2>当前页面的操作记录</h2></div><button id="export-records" class="button">导出 JSON ↓</button></div><p class="muted">只记录本页操作摘要，最多50条。刷新页面即清空，不产生开发板日志文件。</p><div id="records-list" class="records-list"></div></article></section>
+    <section id="page-records" class="page"><article class="card task-view"><div class="card-head"><div><span class="eyebrow">CSV FLIGHT REPLAY / PLOTLY</span><h2>飞行轨迹 · 三维回放</h2></div><span class="tag">CSV 回放</span></div>
+        <div class="trajectory-actions"><button id="map3d-generate" class="button primary" type="button">生成上次飞行轨迹</button><a id="trajectory-download" class="button" href="/api/trajectory/latest.csv" download="last-flight.csv" hidden>下载上次CSV</a><a class="button" href="/trajectory-view" target="_blank" rel="noopener">独立打开回放</a><button id="map3d-clear" class="text-button" type="button">清除显示</button></div>
+        <p id="trajectory-recording" class="muted" role="status">等待开发板记录状态</p>
+        <div id="trajectory-placeholder" class="trajectory-placeholder"><strong>飞行结束后，点击生成轨迹</strong><span>读取开发板保存的完整CSV，以Plotly回放；这里不显示实时轨迹。</span></div>
+        <iframe id="trajectory-frame" class="trajectory-frame" title="Plotly CSV三维飞行轨迹回放" src="about:blank" hidden></iframe>
+        <p id="map3d-note" class="muted" role="status">尚未读取CSV。回放支持自由旋转、缩放和悬停查看坐标。</p><p class="map3d-help muted">图表固定显示所读取的记录；新遥测不会覆盖回放。定位重置和数据断档处断线，局部轨迹不代表环境建图。</p>
+</article><article class="card"><div class="card-head"><div><span class="eyebrow">SESSION NOTES</span><h2>当前页面的操作记录</h2></div><button id="export-records" class="button">导出 JSON ↓</button></div><p class="muted">只记录本页操作摘要，最多50条。刷新页面即清空，不产生开发板日志文件。</p><div id="records-list" class="records-list"></div></article></section>
     <footer><span>航迹 / PX4 比赛工作空间</span><span>先观察 · 再验证 · 后执行</span></footer>
   </main>
 </div><div id="toast" role="status" aria-live="polite"></div>

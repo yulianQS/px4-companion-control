@@ -1,0 +1,1149 @@
+{
+  "categories": [
+    "基础飞行",
+    "视觉控制"
+  ],
+  "blocks": [
+    {
+      "type": "takeoff",
+      "name": "自动起飞",
+      "category": "基础飞行",
+      "description": "人工解锁后，按相对地面高度起飞，到位后继续。",
+      "fields": [
+        {
+          "key": "height",
+          "label": "目标高度 / m",
+          "default": 0.5,
+          "kind": "number",
+          "min": 0.1,
+          "max": 5
+        },
+        {
+          "key": "speed",
+          "label": "上升速度 / m/s（留空使用 PX4 回读值）",
+          "default": null,
+          "kind": "optional_number",
+          "min": 1e-06
+        },
+        {
+          "key": "tolerance",
+          "label": "高度容差 / m",
+          "default": 0.05,
+          "kind": "number",
+          "min": 0.01,
+          "max": 0.5
+        },
+        {
+          "key": "acceleration",
+          "label": "参考加速度 / m/s²（0 不作斜坡）",
+          "default": 0.3,
+          "kind": "number",
+          "min": 0
+        }
+      ],
+      "executable": true,
+      "reason": "",
+      "flight": true
+    },
+    {
+      "type": "hover",
+      "name": "定点悬停",
+      "category": "基础飞行",
+      "description": "飞到指定局部高度并定点保持，满足到位和时长条件后继续。",
+      "fields": [
+        {
+          "key": "height",
+          "label": "局部高度 / m",
+          "default": 0.5,
+          "kind": "number",
+          "min": 0.1,
+          "max": 4.5
+        },
+        {
+          "key": "duration",
+          "label": "悬停时长 / s",
+          "default": 5,
+          "kind": "number",
+          "min": 1,
+          "max": 600
+        },
+        {
+          "key": "speed",
+          "label": "轨迹速度 / m/s",
+          "default": 0.2,
+          "kind": "number",
+          "min": 1e-06
+        },
+        {
+          "key": "tolerance",
+          "label": "位置容差 / m",
+          "default": 0.05,
+          "kind": "number",
+          "min": 0.01,
+          "max": 0.5
+        },
+        {
+          "key": "acceleration",
+          "label": "参考加速度 / m/s²（0 不作斜坡）",
+          "default": 0.3,
+          "kind": "number",
+          "min": 0
+        }
+      ],
+      "executable": true,
+      "reason": "",
+      "flight": true
+    },
+    {
+      "type": "move",
+      "name": "相对位移",
+      "category": "基础飞行",
+      "description": "先制动并等待横滚、俯仰回正，再按任务开始时的机头方向平移或升降；距离从回正后的位置计算。",
+      "fields": [
+        {
+          "key": "direction",
+          "label": "方向",
+          "default": "forward",
+          "kind": "select",
+          "options": [
+            "forward",
+            "back",
+            "left",
+            "right",
+            "up",
+            "down"
+          ]
+        },
+        {
+          "key": "level_angle_deg",
+          "label": "位移前回正：横滚/俯仰容差 / °",
+          "default": 5,
+          "kind": "number",
+          "min": 1,
+          "max": 30
+        },
+        {
+          "key": "level_speed_m_s",
+          "label": "位移前回正：最大剩余速度 / m/s",
+          "default": 0.2,
+          "kind": "number",
+          "min": 0.01,
+          "max": 1
+        },
+        {
+          "key": "level_settle_s",
+          "label": "位移前回正：连续稳定时间 / s",
+          "default": 0.5,
+          "kind": "number",
+          "min": 0.1,
+          "max": 5
+        },
+        {
+          "key": "level_timeout_s",
+          "label": "位移前回正：最长等待时间 / s",
+          "default": 10,
+          "kind": "number",
+          "min": 1,
+          "max": 60
+        },
+        {
+          "key": "distance",
+          "label": "相对距离 / m",
+          "default": 0.2,
+          "kind": "number",
+          "min": 0.1,
+          "max": 5
+        },
+        {
+          "key": "speed",
+          "label": "轨迹速度 / m/s",
+          "default": 0.2,
+          "kind": "number",
+          "min": 1e-06
+        },
+        {
+          "key": "tolerance",
+          "label": "位置容差 / m",
+          "default": 0.05,
+          "kind": "number",
+          "min": 0.01,
+          "max": 0.5
+        },
+        {
+          "key": "acceleration",
+          "label": "参考加速度 / m/s²（0 不作斜坡）",
+          "default": 0.3,
+          "kind": "number",
+          "min": 0
+        }
+      ],
+      "executable": true,
+      "reason": "",
+      "flight": true
+    },
+    {
+      "type": "position",
+      "name": "指定坐标飞行",
+      "category": "基础飞行",
+      "description": "飞到局部 NED 的指定 XYZ 坐标，输入单位为厘米。",
+      "fields": [
+        {
+          "key": "x",
+          "label": "X / cm",
+          "default": 0,
+          "kind": "number",
+          "min": -10000,
+          "max": 10000
+        },
+        {
+          "key": "y",
+          "label": "Y / cm",
+          "default": 0,
+          "kind": "number",
+          "min": -10000,
+          "max": 10000
+        },
+        {
+          "key": "z",
+          "label": "Z 向下 / cm",
+          "default": -50,
+          "kind": "number",
+          "min": -10000,
+          "max": 10000
+        },
+        {
+          "key": "speed",
+          "label": "轨迹速度 / m/s",
+          "default": 0.2,
+          "kind": "number",
+          "min": 1e-06
+        },
+        {
+          "key": "tolerance",
+          "label": "位置容差 / m",
+          "default": 0.05,
+          "kind": "number",
+          "min": 0.01,
+          "max": 0.5
+        },
+        {
+          "key": "acceleration",
+          "label": "参考加速度 / m/s²（0 不作斜坡）",
+          "default": 0.3,
+          "kind": "number",
+          "min": 0
+        }
+      ],
+      "executable": true,
+      "reason": "",
+      "flight": true
+    },
+    {
+      "type": "rotate",
+      "name": "原地旋转",
+      "category": "基础飞行",
+      "description": "保持位置，按当前航向向左或向右旋转设定角度。",
+      "fields": [
+        {
+          "key": "direction",
+          "label": "旋转方向",
+          "default": "clockwise",
+          "kind": "select",
+          "options": [
+            "clockwise",
+            "counterclockwise"
+          ]
+        },
+        {
+          "key": "angle",
+          "label": "转角 / °",
+          "default": 30,
+          "kind": "number",
+          "min": 1,
+          "max": 360
+        },
+        {
+          "key": "speed",
+          "label": "角速度 / °/s",
+          "default": 15,
+          "kind": "number",
+          "min": 1e-06
+        },
+        {
+          "key": "tolerance",
+          "label": "角度容差 / °",
+          "default": 3,
+          "kind": "number",
+          "min": 1,
+          "max": 15
+        },
+        {
+          "key": "angular_acceleration",
+          "label": "参考角加速度 / °/s²（0 不作斜坡）",
+          "default": 60,
+          "kind": "number",
+          "min": 0
+        }
+      ],
+      "executable": true,
+      "reason": "",
+      "flight": true
+    },
+    {
+      "type": "trajectory",
+      "name": "自定义轨迹",
+      "category": "基础飞行",
+      "description": "按航点顺序飞行，逐个到位后继续。",
+      "fields": [
+        {
+          "key": "waypoints",
+          "label": "航点 LOCAL_NED / cm，Z 向下",
+          "default": [
+            [
+              0,
+              0,
+              -50
+            ],
+            [
+              50,
+              0,
+              -50
+            ]
+          ],
+          "kind": "json"
+        },
+        {
+          "key": "speed",
+          "label": "轨迹速度 / m/s",
+          "default": 0.2,
+          "kind": "number",
+          "min": 1e-06
+        },
+        {
+          "key": "tolerance",
+          "label": "位置容差 / m",
+          "default": 0.05,
+          "kind": "number",
+          "min": 0.01,
+          "max": 0.5
+        },
+        {
+          "key": "fixed_yaw_deg",
+          "label": "固定偏航角 / °（空为保持开始航向）",
+          "default": null,
+          "kind": "optional_number",
+          "min": -180,
+          "max": 180
+        },
+        {
+          "key": "repetitions",
+          "label": "执行次数",
+          "default": 1,
+          "kind": "integer",
+          "min": 1,
+          "max": 100
+        },
+        {
+          "key": "acceleration",
+          "label": "参考加速度 / m/s²（0 不作斜坡）",
+          "default": 0.3,
+          "kind": "number",
+          "min": 0
+        }
+      ],
+      "executable": true,
+      "reason": "",
+      "flight": true
+    },
+    {
+      "type": "trajectory_loop",
+      "name": "轨迹循环",
+      "category": "基础飞行",
+      "description": "重复执行同一组航点，完成指定次数后继续。",
+      "fields": [
+        {
+          "key": "waypoints",
+          "label": "航点 LOCAL_NED / cm，Z 向下",
+          "default": [
+            [
+              0,
+              0,
+              -50
+            ],
+            [
+              50,
+              0,
+              -50
+            ]
+          ],
+          "kind": "json"
+        },
+        {
+          "key": "speed",
+          "label": "轨迹速度 / m/s",
+          "default": 0.2,
+          "kind": "number",
+          "min": 1e-06
+        },
+        {
+          "key": "tolerance",
+          "label": "位置容差 / m",
+          "default": 0.05,
+          "kind": "number",
+          "min": 0.01,
+          "max": 0.5
+        },
+        {
+          "key": "fixed_yaw_deg",
+          "label": "固定偏航角 / °（空为保持开始航向）",
+          "default": null,
+          "kind": "optional_number",
+          "min": -180,
+          "max": 180
+        },
+        {
+          "key": "repetitions",
+          "label": "执行次数",
+          "default": 1,
+          "kind": "integer",
+          "min": 1,
+          "max": 100
+        },
+        {
+          "key": "acceleration",
+          "label": "参考加速度 / m/s²（0 不作斜坡）",
+          "default": 0.3,
+          "kind": "number",
+          "min": 0
+        }
+      ],
+      "executable": true,
+      "reason": "",
+      "flight": true
+    },
+    {
+      "type": "land",
+      "name": "自动降落",
+      "category": "基础飞行",
+      "description": "请求 PX4 降落，确认落地并上锁后完成。",
+      "fields": [],
+      "executable": true,
+      "reason": "",
+      "flight": true
+    },
+    {
+      "type": "search",
+      "name": "搜索并确认目标",
+      "category": "视觉控制",
+      "description": "扫描发现目标后缓慢接近，累计真实识别证据，确认后直接进入下一任务。",
+      "fields": [
+        {
+          "key": "target_type",
+          "label": "目标类型",
+          "default": "apriltag36h11",
+          "kind": "select",
+          "options": [
+            "apriltag36h11"
+          ]
+        },
+        {
+          "key": "target_id",
+          "label": "目标 ID（当前实机仅支持 0）",
+          "default": 0,
+          "kind": "integer",
+          "min": 0,
+          "max": 999
+        },
+        {
+          "key": "scan_angle",
+          "label": "左右扫描角度 / °（±）",
+          "default": 30,
+          "kind": "number",
+          "min": 1,
+          "max": 90
+        },
+        {
+          "key": "forward_distance",
+          "label": "单次前进距离 / m",
+          "default": 0.2,
+          "kind": "number",
+          "min": 0.1,
+          "max": 1
+        },
+        {
+          "key": "max_attempts",
+          "label": "最大搜索次数",
+          "default": 3,
+          "kind": "integer",
+          "min": 1,
+          "max": 20
+        },
+        {
+          "key": "scan_speed",
+          "label": "扫描角速度 / °/s",
+          "default": 15,
+          "kind": "number",
+          "min": 1e-06
+        },
+        {
+          "key": "speed",
+          "label": "前进速度 / m/s",
+          "default": 0.1,
+          "kind": "number",
+          "min": 1e-06
+        },
+        {
+          "key": "confirm_seconds",
+          "label": "累计有效识别时间 / s",
+          "default": 0.5,
+          "kind": "number",
+          "min": 0.1,
+          "max": 10
+        },
+        {
+          "key": "local_search_seconds",
+          "label": "短暂漏检沿记忆方向接近时间 / s",
+          "default": 2,
+          "kind": "number",
+          "min": 0.2,
+          "max": 30
+        },
+        {
+          "key": "local_scan_angle",
+          "label": "长时间丢失后附近重捕获角度 / °",
+          "default": 10,
+          "kind": "number",
+          "min": 1,
+          "max": 90
+        },
+        {
+          "key": "approach_speed",
+          "label": "发现目标后接近速度 / m/s",
+          "default": 0.1,
+          "kind": "number",
+          "min": 0
+        },
+        {
+          "key": "approach_acceleration",
+          "label": "接近加速度 / m/s²（0 不作斜坡）",
+          "default": 0.2,
+          "kind": "number",
+          "min": 0
+        }
+      ],
+      "executable": true,
+      "reason": "",
+      "flight": true
+    },
+    {
+      "type": "recognize",
+      "name": "识别目标",
+      "category": "视觉控制",
+      "description": "累计真实识别时间，确认指定目标后继续。",
+      "fields": [
+        {
+          "key": "target_type",
+          "label": "目标类型",
+          "default": "apriltag36h11",
+          "kind": "select",
+          "options": [
+            "apriltag36h11"
+          ]
+        },
+        {
+          "key": "target_id",
+          "label": "目标 ID（当前实机仅支持 0）",
+          "default": 0,
+          "kind": "integer",
+          "min": 0,
+          "max": 999
+        },
+        {
+          "key": "settle_seconds",
+          "label": "累计有效识别时间 / s",
+          "default": 0.5,
+          "kind": "number",
+          "min": 0.1,
+          "max": 10
+        }
+      ],
+      "executable": true,
+      "reason": "",
+      "flight": false
+    },
+    {
+      "type": "lock",
+      "name": "锁定目标",
+      "category": "视觉控制",
+      "description": "确认并保留指定目标状态，供后续视觉任务使用。",
+      "fields": [
+        {
+          "key": "target_type",
+          "label": "目标类型",
+          "default": "apriltag36h11",
+          "kind": "select",
+          "options": [
+            "apriltag36h11"
+          ]
+        },
+        {
+          "key": "target_id",
+          "label": "目标 ID（当前实机仅支持 0）",
+          "default": 0,
+          "kind": "integer",
+          "min": 0,
+          "max": 999
+        },
+        {
+          "key": "lost_timeout",
+          "label": "连续丢失时间 / s",
+          "default": 3,
+          "kind": "number",
+          "min": 0.1,
+          "max": 30
+        },
+        {
+          "key": "lost_target",
+          "label": "连续丢失后跳转（空为失败）",
+          "default": "",
+          "kind": "ref"
+        },
+        {
+          "key": "settle_seconds",
+          "label": "累计有效识别时间 / s",
+          "default": 1,
+          "kind": "number",
+          "min": 0.1,
+          "max": 10
+        }
+      ],
+      "executable": true,
+      "reason": "",
+      "flight": false
+    },
+    {
+      "type": "align",
+      "name": "视觉对准",
+      "category": "视觉控制",
+      "description": "将目标对准画面中心；后接距离保持时允许粗对准交接。",
+      "fields": [
+        {
+          "key": "target_type",
+          "label": "目标类型",
+          "default": "apriltag36h11",
+          "kind": "select",
+          "options": [
+            "apriltag36h11"
+          ]
+        },
+        {
+          "key": "target_id",
+          "label": "目标 ID（当前实机仅支持 0）",
+          "default": 0,
+          "kind": "integer",
+          "min": 0,
+          "max": 999
+        },
+        {
+          "key": "lost_timeout",
+          "label": "连续丢失时间 / s",
+          "default": 3,
+          "kind": "number",
+          "min": 0.1,
+          "max": 30
+        },
+        {
+          "key": "lost_target",
+          "label": "连续丢失后跳转（空为失败）",
+          "default": "",
+          "kind": "ref"
+        },
+        {
+          "key": "horizontal_threshold",
+          "label": "水平误差阈值 / px",
+          "default": 15,
+          "kind": "number",
+          "min": 1,
+          "max": 320
+        },
+        {
+          "key": "vertical_threshold",
+          "label": "垂直误差阈值 / px",
+          "default": 15,
+          "kind": "number",
+          "min": 1,
+          "max": 240
+        },
+        {
+          "key": "max_distance",
+          "label": "最大对准距离 / m",
+          "default": 5,
+          "kind": "number",
+          "min": 0.05,
+          "max": 20
+        },
+        {
+          "key": "adjust_speed",
+          "label": "位置调整速度幅值 / m/s（0 为不限幅）",
+          "default": 0.1,
+          "kind": "number",
+          "min": 0
+        },
+        {
+          "key": "yaw_speed",
+          "label": "偏航速度幅值 / rad/s（0 为不限幅）",
+          "default": 0.2,
+          "kind": "number",
+          "min": 0
+        },
+        {
+          "key": "settle_seconds",
+          "label": "连续达标时间 / s",
+          "default": 1,
+          "kind": "number",
+          "min": 0.1,
+          "max": 10
+        },
+        {
+          "key": "target_distance",
+          "label": "目标距离 / m",
+          "default": 1,
+          "kind": "number",
+          "min": 1e-06
+        },
+        {
+          "key": "distance_tolerance",
+          "label": "距离容差 / m",
+          "default": 0.1,
+          "kind": "number",
+          "min": 0.01,
+          "max": 1
+        },
+        {
+          "key": "duration",
+          "label": "跟随 / 距离保持时长 / s",
+          "default": 5,
+          "kind": "number",
+          "min": 1,
+          "max": 600
+        },
+        {
+          "key": "coarse_horizontal_threshold",
+          "label": "后接距离保持：粗对准水平阈值 / px",
+          "default": 80,
+          "kind": "number",
+          "min": 1,
+          "max": 320
+        },
+        {
+          "key": "coarse_vertical_threshold",
+          "label": "后接距离保持：粗对准垂直阈值 / px",
+          "default": 60,
+          "kind": "number",
+          "min": 1,
+          "max": 240
+        },
+        {
+          "key": "coarse_settle_seconds",
+          "label": "后接距离保持：粗对准有效确认时间 / s",
+          "default": 0.1,
+          "kind": "number",
+          "min": 0.05,
+          "max": 10
+        }
+      ],
+      "executable": true,
+      "reason": "",
+      "flight": true
+    },
+    {
+      "type": "center",
+      "name": "视觉居中",
+      "category": "视觉控制",
+      "description": "按水平、垂直阈值精确居中，连续达标后继续。",
+      "fields": [
+        {
+          "key": "target_type",
+          "label": "目标类型",
+          "default": "apriltag36h11",
+          "kind": "select",
+          "options": [
+            "apriltag36h11"
+          ]
+        },
+        {
+          "key": "target_id",
+          "label": "目标 ID（当前实机仅支持 0）",
+          "default": 0,
+          "kind": "integer",
+          "min": 0,
+          "max": 999
+        },
+        {
+          "key": "lost_timeout",
+          "label": "连续丢失时间 / s",
+          "default": 3,
+          "kind": "number",
+          "min": 0.1,
+          "max": 30
+        },
+        {
+          "key": "lost_target",
+          "label": "连续丢失后跳转（空为失败）",
+          "default": "",
+          "kind": "ref"
+        },
+        {
+          "key": "horizontal_threshold",
+          "label": "水平误差阈值 / px",
+          "default": 15,
+          "kind": "number",
+          "min": 1,
+          "max": 320
+        },
+        {
+          "key": "vertical_threshold",
+          "label": "垂直误差阈值 / px",
+          "default": 15,
+          "kind": "number",
+          "min": 1,
+          "max": 240
+        },
+        {
+          "key": "max_distance",
+          "label": "最大对准距离 / m",
+          "default": 5,
+          "kind": "number",
+          "min": 0.05,
+          "max": 20
+        },
+        {
+          "key": "adjust_speed",
+          "label": "位置调整速度幅值 / m/s（0 为不限幅）",
+          "default": 0.1,
+          "kind": "number",
+          "min": 0
+        },
+        {
+          "key": "yaw_speed",
+          "label": "偏航速度幅值 / rad/s（0 为不限幅）",
+          "default": 0.2,
+          "kind": "number",
+          "min": 0
+        },
+        {
+          "key": "settle_seconds",
+          "label": "连续达标时间 / s",
+          "default": 1,
+          "kind": "number",
+          "min": 0.1,
+          "max": 10
+        },
+        {
+          "key": "target_distance",
+          "label": "目标距离 / m",
+          "default": 1,
+          "kind": "number",
+          "min": 1e-06
+        },
+        {
+          "key": "distance_tolerance",
+          "label": "距离容差 / m",
+          "default": 0.1,
+          "kind": "number",
+          "min": 0.01,
+          "max": 1
+        },
+        {
+          "key": "duration",
+          "label": "跟随 / 距离保持时长 / s",
+          "default": 5,
+          "kind": "number",
+          "min": 1,
+          "max": 600
+        }
+      ],
+      "executable": true,
+      "reason": "",
+      "flight": true
+    },
+    {
+      "type": "follow",
+      "name": "视觉跟随",
+      "category": "视觉控制",
+      "description": "跟随目标并调节前后距离，满足时间与误差条件后继续。",
+      "fields": [
+        {
+          "key": "target_type",
+          "label": "目标类型",
+          "default": "apriltag36h11",
+          "kind": "select",
+          "options": [
+            "apriltag36h11"
+          ]
+        },
+        {
+          "key": "target_id",
+          "label": "目标 ID（当前实机仅支持 0）",
+          "default": 0,
+          "kind": "integer",
+          "min": 0,
+          "max": 999
+        },
+        {
+          "key": "lost_timeout",
+          "label": "连续丢失时间 / s",
+          "default": 3,
+          "kind": "number",
+          "min": 0.1,
+          "max": 30
+        },
+        {
+          "key": "lost_target",
+          "label": "连续丢失后跳转（空为失败）",
+          "default": "",
+          "kind": "ref"
+        },
+        {
+          "key": "horizontal_threshold",
+          "label": "水平误差阈值 / px",
+          "default": 15,
+          "kind": "number",
+          "min": 1,
+          "max": 320
+        },
+        {
+          "key": "vertical_threshold",
+          "label": "垂直误差阈值 / px",
+          "default": 15,
+          "kind": "number",
+          "min": 1,
+          "max": 240
+        },
+        {
+          "key": "max_distance",
+          "label": "有效目标距离上限 / m",
+          "default": 5,
+          "kind": "number",
+          "min": 0.05,
+          "max": 20
+        },
+        {
+          "key": "adjust_speed",
+          "label": "位置调整速度幅值 / m/s（0 为不限幅）",
+          "default": 0.1,
+          "kind": "number",
+          "min": 0
+        },
+        {
+          "key": "yaw_speed",
+          "label": "偏航速度幅值 / rad/s（0 为不限幅）",
+          "default": 0.2,
+          "kind": "number",
+          "min": 0
+        },
+        {
+          "key": "settle_seconds",
+          "label": "连续达标时间 / s",
+          "default": 1,
+          "kind": "number",
+          "min": 0.1,
+          "max": 10
+        },
+        {
+          "key": "target_distance",
+          "label": "目标距离 / m",
+          "default": 1,
+          "kind": "number",
+          "min": 1e-06
+        },
+        {
+          "key": "distance_tolerance",
+          "label": "距离容差 / m",
+          "default": 0.1,
+          "kind": "number",
+          "min": 0.01,
+          "max": 1
+        },
+        {
+          "key": "duration",
+          "label": "有效执行最短时长 / s",
+          "default": 5,
+          "kind": "number",
+          "min": 1,
+          "max": 600
+        }
+      ],
+      "executable": true,
+      "reason": "",
+      "flight": true
+    },
+    {
+      "type": "distance",
+      "name": "距离保持",
+      "category": "视觉控制",
+      "description": "按设定恒定前后速度接近目标距离，进入距离容差后停止；达标后继续。",
+      "fields": [
+        {
+          "key": "target_type",
+          "label": "目标类型",
+          "default": "apriltag36h11",
+          "kind": "select",
+          "options": [
+            "apriltag36h11"
+          ]
+        },
+        {
+          "key": "target_id",
+          "label": "目标 ID（当前实机仅支持 0）",
+          "default": 0,
+          "kind": "integer",
+          "min": 0,
+          "max": 999
+        },
+        {
+          "key": "lost_timeout",
+          "label": "连续丢失时间 / s",
+          "default": 3,
+          "kind": "number",
+          "min": 0.1,
+          "max": 30
+        },
+        {
+          "key": "lost_target",
+          "label": "连续丢失后跳转（空为失败）",
+          "default": "",
+          "kind": "ref"
+        },
+        {
+          "key": "horizontal_threshold",
+          "label": "水平误差阈值 / px",
+          "default": 15,
+          "kind": "number",
+          "min": 1,
+          "max": 320
+        },
+        {
+          "key": "vertical_threshold",
+          "label": "垂直误差阈值 / px",
+          "default": 15,
+          "kind": "number",
+          "min": 1,
+          "max": 240
+        },
+        {
+          "key": "max_distance",
+          "label": "有效目标距离上限 / m",
+          "default": 5,
+          "kind": "number",
+          "min": 0.05,
+          "max": 20
+        },
+        {
+          "key": "adjust_speed",
+          "label": "位置调整速度幅值 / m/s（0 为不限幅）",
+          "default": 0.1,
+          "kind": "number",
+          "min": 0
+        },
+        {
+          "key": "yaw_speed",
+          "label": "偏航速度幅值 / rad/s（0 为不限幅）",
+          "default": 0.2,
+          "kind": "number",
+          "min": 0
+        },
+        {
+          "key": "settle_seconds",
+          "label": "连续达标时间 / s",
+          "default": 1,
+          "kind": "number",
+          "min": 0.1,
+          "max": 10
+        },
+        {
+          "key": "target_distance",
+          "label": "目标距离 / m",
+          "default": 1,
+          "kind": "number",
+          "min": 1e-06
+        },
+        {
+          "key": "distance_tolerance",
+          "label": "距离容差 / m",
+          "default": 0.1,
+          "kind": "number",
+          "min": 0.01,
+          "max": 1
+        },
+        {
+          "key": "duration",
+          "label": "有效执行最短时长 / s",
+          "default": 5,
+          "kind": "number",
+          "min": 1,
+          "max": 600
+        }
+      ],
+      "executable": true,
+      "reason": "",
+      "flight": true
+    },
+    {
+      "type": "switch_target",
+      "name": "目标切换",
+      "category": "视觉控制",
+      "description": "指定后续使用的目标 ID；当前识别链路支持 ID 0。",
+      "fields": [
+        {
+          "key": "target_type",
+          "label": "目标类型",
+          "default": "apriltag36h11",
+          "kind": "select",
+          "options": [
+            "apriltag36h11"
+          ]
+        },
+        {
+          "key": "target_id",
+          "label": "目标 ID（当前实机仅支持 0）",
+          "default": 0,
+          "kind": "integer",
+          "min": 0,
+          "max": 999
+        }
+      ],
+      "executable": false,
+      "reason": "现有检测器与 C++ 控制器固定 ID 0，尚无运行中目标切换接口",
+      "flight": false
+    },
+    {
+      "type": "apriltag",
+      "name": "AprilTag 定位",
+      "category": "视觉控制",
+      "description": "识别 AprilTag 并确认标定位姿，供后续测距与控制使用。",
+      "fields": [
+        {
+          "key": "target_type",
+          "label": "目标类型",
+          "default": "apriltag36h11",
+          "kind": "select",
+          "options": [
+            "apriltag36h11"
+          ]
+        },
+        {
+          "key": "target_id",
+          "label": "目标 ID（当前实机仅支持 0）",
+          "default": 0,
+          "kind": "integer",
+          "min": 0,
+          "max": 999
+        }
+      ],
+      "executable": true,
+      "reason": "",
+      "flight": false
+    }
+  ]
+}

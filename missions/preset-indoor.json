@@ -1,0 +1,132 @@
+{
+  "version": 1,
+  "id": "preset-indoor",
+  "name": "室内单目标完整比赛",
+  "entry": "m-mv5cg1p0-622dc06586f1b309a9a1",
+  "blocks": [
+    {
+      "id": "m-mv5cg1p0-622dc06586f1b309a9a1",
+      "type": "takeoff",
+      "name": "自动起飞",
+      "params": {
+        "height": 0.5,
+        "speed": null,
+        "tolerance": 0.05
+      },
+      "status": "pending",
+      "next": "m-mv5cg1p0-02e7b34379c9df6c1ae6",
+      "branches": {},
+      "timeout": 120,
+      "auto_next": true
+    },
+    {
+      "id": "m-mv5cg1p0-02e7b34379c9df6c1ae6",
+      "type": "trajectory",
+      "name": "自定义轨迹",
+      "params": {
+        "waypoints": [
+          [
+            0,
+            0,
+            -50
+          ],
+          [
+            50,
+            0,
+            -50
+          ]
+        ],
+        "speed": 0.2,
+        "tolerance": 0.05,
+        "fixed_yaw_deg": null,
+        "repetitions": 1
+      },
+      "status": "pending",
+      "next": "m-mv5cg1p0-45296d5b8851c9caf95b",
+      "branches": {},
+      "timeout": 120,
+      "auto_next": true
+    },
+    {
+      "id": "m-mv5cg1p0-45296d5b8851c9caf95b",
+      "type": "search",
+      "name": "搜索并确认目标",
+      "params": {
+        "target_type": "apriltag36h11",
+        "target_id": 0,
+        "scan_angle": 30,
+        "forward_distance": 0.2,
+        "max_attempts": 3,
+        "scan_speed": 15,
+        "speed": 0.1,
+        "confirm_seconds": 0.5
+      },
+      "status": "pending",
+      "next": "m-mv5cg1p0-1aac80afa1da66aaa12e",
+      "branches": {},
+      "timeout": 120,
+      "auto_next": true
+    },
+    {
+      "id": "m-mv5cg1p0-1aac80afa1da66aaa12e",
+      "type": "align",
+      "name": "视觉对准",
+      "params": {
+        "target_type": "apriltag36h11",
+        "target_id": 0,
+        "lost_timeout": 3,
+        "lost_target": "m-mv5cg1p0-45296d5b8851c9caf95b",
+        "horizontal_threshold": 15,
+        "vertical_threshold": 15,
+        "max_distance": 5,
+        "adjust_speed": 0.1,
+        "yaw_speed": 0.2,
+        "settle_seconds": 1,
+        "target_distance": 1,
+        "distance_tolerance": 0.1,
+        "duration": 5
+      },
+      "status": "pending",
+      "next": "m-mv5cg1p0-72b7f55bbbb7ba8852b1",
+      "branches": {},
+      "timeout": 120,
+      "auto_next": true
+    },
+    {
+      "id": "m-mv5cg1p0-72b7f55bbbb7ba8852b1",
+      "type": "distance",
+      "name": "距离保持",
+      "params": {
+        "target_type": "apriltag36h11",
+        "target_id": 0,
+        "lost_timeout": 3,
+        "lost_target": "m-mv5cg1p0-45296d5b8851c9caf95b",
+        "horizontal_threshold": 15,
+        "vertical_threshold": 15,
+        "max_distance": 5,
+        "adjust_speed": 0.1,
+        "yaw_speed": 0.2,
+        "settle_seconds": 1,
+        "target_distance": 1,
+        "distance_tolerance": 0.1,
+        "duration": 5
+      },
+      "status": "pending",
+      "next": "m-mv5cg1p0-6d3e29ace986e1646c2f",
+      "branches": {},
+      "timeout": 120,
+      "auto_next": true
+    },
+    {
+      "id": "m-mv5cg1p0-6d3e29ace986e1646c2f",
+      "type": "land",
+      "name": "自动降落",
+      "params": {},
+      "status": "pending",
+      "next": null,
+      "branches": {},
+      "timeout": 120,
+      "auto_next": true
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "python_env": "/home/pi/venv",
+  "web": {
+    "host": "0.0.0.0",
+    "port": 8081
+  },
+  "control": {
+    "host": "127.0.0.1",
+    "port": 8090,
+    "device": "/dev/ttyS7",
+    "baud": 115200,
+    "source_system": 42,
+    "source_component": 191
+  },
+  "vision_snapshot_dir": "/dev/shm/drone_vision",
+  "vision_tracking": {
+    "retain_seconds": 0.5,
+    "max_center_jump_normalized": 0.25,
+    "confirm_jump_frames": 2
+  }
+}

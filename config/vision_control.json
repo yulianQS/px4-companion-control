@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "parameters": {
+    "yaw_gain": 3,
+    "yaw_ki": 0,
+    "yaw_kd": 0,
+    "yaw_speed_rad_s": 0,
+    "vertical_gain": 0.8,
+    "vertical_ki": 0,
+    "vertical_kd": 0,
+    "vertical_speed_m_s": 0,
+    "distance_gain": 2,
+    "distance_ki": 0,
+    "distance_kd": 0,
+    "forward_speed_m_s": 4,
+    "tag_size_m": 0.12,
+    "target_distance_m": 0.2,
+    "vertical_enabled": false,
+    "distance_enabled": false
+  }
+}

@@ -1,7 +1,11 @@
-# Publication scope
+# 发布范围
 
-Source snapshot: 2026-10-10. Python, pymavlink, PX4 Offboard, HTTP/JavaScript and board-side 20 Hz control. See README.md and docs/joystick_control.md.
+源码快照：2026-10-27。对应本地源码提交 `516adefb7e94bfe520f416e2f5360bd9b2c57b43`，将本地 `drone_project/` 映射为本仓库根目录。
 
-No flight parameters or hardware behavior were changed for publication. Hardware tests require the operator's explicit authorization. Offline verification does not establish flight readiness. Camera/AprilTag integration uses the separately installed /home/pi/cv_work project, which is not bundled. Runtime environments, models, telemetry, local accounts and deployment credentials are excluded.
+当前运行入口为 `web_control.py`、`scripts/start_runtime.py` 和 C++ `drone_service`；C++ 负责 20 Hz 设定值、机载任务调度和视觉闭环，ROS2 C++ 节点处理相机与 AprilTag，Python 提供网页/API。具体构建、配置和启动方法见 README.md。仓库中保留的早期 Python 控制模块及 board-bringup 文档属于历史实现，当前控制链路以 README.md 为准。
 
-The companion-board bring-up and camera diagnostic documents are retained under docs/board-bringup as earlier stages of this same project.
+本次同步包含相对位移前制动回正、视觉任务、飞行日志与验证工具的源码。离线自检和 PTY 回归不代表真实飞行或动力学验证通过。启动默认监测，不会自动解锁或执行任务。
+
+不发布构建目录、运行环境、模型、飞行遥测、运行日志、缓存、编译后的相机辅助程序或部署备份。历史提交保持不变。
+
+已有第三方源码和前端库保留其随附许可文件；未为发布增加新的运行依赖。

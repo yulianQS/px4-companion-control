@@ -1,0 +1,49 @@
+/* Competition extensions scoped to the existing page/card design. */
+#page-mission .mission-layout{grid-template-columns:minmax(260px,.78fr) minmax(420px,1.4fr);align-items:start}
+#page-mission .card{min-width:0}#page-mission .mission-toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0}
+#page-mission .mission-toolbar .button{font-size:11px;padding:9px 12px}#page-mission .mission-toolbar label{margin:0;flex:1;min-width:150px}
+#page-mission input,#page-mission select{margin-top:4px}#page-mission .mission-categories{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0}
+#page-mission .mission-categories button{border:1px solid var(--line);background:white;border-radius:5px;font:inherit;font-size:11px;color:var(--muted);padding:7px 9px;cursor:pointer}
+#page-mission .mission-categories .selected{background:var(--teal);color:white;border-color:var(--teal)}
+#page-mission .mission-blocks{max-height:620px;overflow-y:auto;margin:12px 0 20px}
+#page-mission .mission-block{width:100%;cursor:pointer}#page-mission .mission-block>div{flex:1}#page-mission .mission-block small{margin-top:4px}
+#page-mission .capability{display:inline-block;font-size:9px;margin-top:7px;border-radius:4px;padding:2px 6px;background:#eaf5f4;color:#16808a}
+#page-mission .capability.draft{background:#fff4e4;color:#b37731}
+#page-mission .mission-list{min-height:260px;max-height:740px;overflow:auto;margin:12px 0}
+#page-mission .mission-list li{align-items:flex-start;position:relative;border:1px solid var(--line);border-radius:6px;margin:8px 0;padding:13px 11px;background:white;cursor:grab}
+#page-mission .mission-list li:before{margin-top:4px;min-width:20px}#page-mission .mission-row-main{flex:1;min-width:0;cursor:pointer}
+#page-mission .mission-row-main b{display:block;font-size:13px}#page-mission .mission-row-main p{font-size:10px;color:var(--muted);margin:6px 0;overflow-wrap:anywhere}
+#page-mission .mission-row-id{font:9px monospace;color:#91a2a8;display:block;overflow-wrap:anywhere}
+#page-mission .mission-row-actions{display:flex;gap:2px;max-width:106px;flex-wrap:wrap;justify-content:flex-end}
+#page-mission .mission-row-actions button{padding:3px 5px;font-size:10px;margin:0;color:var(--teal)}
+#page-mission .mission-list li.running,#page-mission .mission-list li.waiting{border-color:var(--teal);background:#effafa;box-shadow:inset 3px 0 var(--teal)}
+#page-mission .mission-list li.failed{border-color:#c87764;background:#fff7f3}#page-mission .mission-list li.succeeded{border-color:#a9d6bc}
+.mission-state{font-size:10px;padding:3px 6px;border-radius:4px;display:inline-block;background:#eef2f4;color:#72878e}
+.mission-state.running{background:#dff3f1;color:#007f87}.mission-state.succeeded{background:#e4f4e9;color:#287650}.mission-state.failed{background:#ffebe5;color:#ae513f}.mission-state.waiting{background:#fff1d9;color:#9c741b}
+#page-mission .mission-monitor{margin-bottom:20px;padding:16px 20px;border-top:3px solid var(--teal)}
+#page-mission .mission-live-layout{display:grid;grid-template-columns:minmax(260px,.9fr) minmax(0,1.4fr);gap:24px;align-items:start}
+#page-mission .mission-live-status{min-width:0}
+#page-mission .mission-camera-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:10px 0;font-size:12px}
+#page-mission .mission-camera-stage{position:relative;aspect-ratio:4/3;background:#142c35;border-radius:6px;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#b1c9cf;font-size:13px}
+#page-mission .mission-camera-stage canvas{display:block;width:100%;height:100%;object-fit:contain}
+#page-mission .mission-live-status .mission-metrics{grid-template-columns:repeat(3,minmax(0,1fr))}
+#page-mission .mission-live-status .mission-toolbar{position:sticky;bottom:12px;z-index:2;background:white;padding:8px 0}
+#page-mission #mission-kill{font-weight:700;min-height:44px}
+@media(max-width:1000px){#page-mission .mission-live-layout{grid-template-columns:1fr}#page-mission .mission-camera{width:100%;max-width:640px;margin:auto}}
+#page-mission .mission-metrics{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;margin:12px 0}
+#page-mission .mission-metrics span{font-size:10px;color:var(--muted)}#page-mission .mission-metrics b{display:block;font:12px monospace;color:var(--ink);margin-top:5px;overflow-wrap:anywhere}
+#page-mission .mission-run-note{font-size:11px;white-space:pre-wrap;overflow-wrap:anywhere;max-height:100px;overflow:auto}
+#page-mission .mission-events{max-height:140px;overflow:auto;font-size:10px;color:var(--muted);padding-left:18px}
+#mission-flow{overflow:auto;border:1px solid var(--line);background:#f7fafb;border-radius:6px;max-height:740px}#mission-flow svg{min-width:650px;width:100%;display:block}
+#mission-flow .flow-node{cursor:pointer}#mission-flow .flow-node:focus{outline:none}#mission-flow .flow-node:focus rect{stroke:var(--teal);stroke-width:3}
+#page-mission [hidden]{display:none!important}
+.mission-dialog{border:1px solid var(--line);border-radius:10px;padding:0;width:min(600px,94vw);max-height:88vh;color:var(--ink);box-shadow:0 20px 80px #173d4240}
+.mission-dialog::backdrop{background:#173d4255}.mission-dialog form{padding:24px}.mission-dialog .dialog-head{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:15px}
+.mission-dialog h2{font-size:19px;margin:0}.mission-dialog label{margin:13px 0}.mission-dialog textarea{min-height:110px;font:12px monospace;margin-top:6px}
+.mission-dialog .dialog-fields{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}.mission-dialog .wide{grid-column:1/-1}.mission-dialog .dialog-footer{display:flex;justify-content:flex-end;gap:10px;position:sticky;bottom:0;background:white;padding:15px 0 0;border-top:1px solid var(--line)}
+.mission-dialog .dialog-error{font-size:11px;color:#ac5040;white-space:pre-wrap}.mission-dialog .muted{white-space:pre-wrap}
+.mission-dialog .mission-field-help{display:block;margin-top:6px;font-size:11px;line-height:1.55;color:var(--muted)}
+.mission-dialog .mission-param-section{margin:16px 0 0;padding-top:12px;border-top:1px solid var(--line);font-size:12px;color:var(--teal);font-weight:600}
+.mission-purpose{display:block;margin-top:5px;font-size:11px;line-height:1.55;color:var(--muted)}
+@media(max-width:1200px){#page-mission .mission-layout{grid-template-columns:1fr}#page-mission .mission-blocks{max-height:360px}#page-mission .mission-metrics{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:600px){#page-mission .mission-metrics{grid-template-columns:repeat(2,1fr)}.mission-dialog .dialog-fields{grid-template-columns:1fr}.mission-dialog .wide{grid-column:auto}}

@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Plotly · CSV三维轨迹回放</title>
+  <link rel="stylesheet" href="/trajectory.css">
+  <script src="/vendor/plotly-strict-4.1.1.min.js" defer></script>
+  <script src="/trajectory_plot.js" defer></script>
+</head>
+<body>
+  <div class="toolbar" role="group" aria-label="轨迹视角">
+    <button id="view-3d" type="button">三维</button>
+    <button id="view-top" type="button">俯视</button>
+    <button id="view-side" type="button">侧视</button>
+    <button id="view-fit" type="button">适应视图</button>
+    <span>拖动旋转 · 滚轮缩放 · 悬停查看坐标</span>
+  </div>
+  <p id="plot-status" role="status">正在加载本地Plotly与CSV记录…</p>
+  <div class="playback-controls">
+    <label>导入CSV <input id="csv-import" type="file" accept=".csv,text/csv"></label>
+    <button id="replay-play" type="button" disabled>播放</button>
+    <button id="replay-pause" type="button" disabled>暂停</button>
+    <label>速度 <select id="replay-speed"><option value="0.25">0.25×</option><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="4">4×</option></select></label>
+    <button id="analysis-export" type="button" disabled>导出分析JSON</button>
+    <button id="errors-export" type="button" disabled>导出误差CSV</button>
+    <input id="replay-time" type="range" min="0" max="1" step="0.01" value="1" aria-label="回放时间进度" disabled>
+    <span id="replay-clock">—</span>
+  </div>
+  <p id="analysis-summary">等待Python分析结果</p>
+  <div id="trajectory-plot" role="img" aria-label="CSV飞行轨迹交互式三维图"></div>
+</body>
+</html>

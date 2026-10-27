@@ -13,7 +13,7 @@
 | 飞控USB | 电脑COM24，与开发板tty编号无数字对应关系 |
 | COM25 | 用户确认连接开发板调试、与当前UART7无关，不承担供电；不沿用早期测试接线 |
 | 光流/测距 | MTF-02/02P，飞控侧/dev/ttyS3，115200，MAVLink实例1、源1/88 |
-| 前置相机 | IMX219，CAM1/MIPI、/dev/video0，用于目标识别，当前不参与飞行控制 |
+| 前置相机 | IMX219，CAM1/MIPI、/dev/video0，识别结果经 C++ 视觉控制参与任务执行 |
 | 电调 | 用户确认微空33A四合一、Bluejay 48k；未确认可用RPM反馈 |
 | 磁力计 | 当前未发布sensor_mag，CAL_MAG IDs曾全为0，EKF航向未对齐 |
 

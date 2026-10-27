@@ -1,0 +1,78 @@
+{
+  "version": 1,
+  "id": "preset-classic",
+  "name": "搜索 → 对准 → 接近",
+  "entry": "m-mv5cg1p0-b6feb09d279e0a99dda1",
+  "blocks": [
+    {
+      "id": "m-mv5cg1p0-b6feb09d279e0a99dda1",
+      "type": "search",
+      "name": "搜索并确认目标",
+      "params": {
+        "target_type": "apriltag36h11",
+        "target_id": 0,
+        "scan_angle": 30,
+        "forward_distance": 0.2,
+        "max_attempts": 3,
+        "scan_speed": 15,
+        "speed": 0.1,
+        "confirm_seconds": 0.5
+      },
+      "status": "pending",
+      "next": "m-mv5cg1p0-4ae21189a8a1f7f541b2",
+      "branches": {},
+      "timeout": 120,
+      "auto_next": true
+    },
+    {
+      "id": "m-mv5cg1p0-4ae21189a8a1f7f541b2",
+      "type": "align",
+      "name": "视觉对准",
+      "params": {
+        "target_type": "apriltag36h11",
+        "target_id": 0,
+        "lost_timeout": 3,
+        "lost_target": "",
+        "horizontal_threshold": 15,
+        "vertical_threshold": 15,
+        "max_distance": 5,
+        "adjust_speed": 0.1,
+        "yaw_speed": 0.2,
+        "settle_seconds": 1,
+        "target_distance": 1,
+        "distance_tolerance": 0.1,
+        "duration": 5
+      },
+      "status": "pending",
+      "next": "m-mv5cg1p0-3e9a9fc2b0a49ec4141e",
+      "branches": {},
+      "timeout": 120,
+      "auto_next": true
+    },
+    {
+      "id": "m-mv5cg1p0-3e9a9fc2b0a49ec4141e",
+      "type": "distance",
+      "name": "距离保持",
+      "params": {
+        "target_type": "apriltag36h11",
+        "target_id": 0,
+        "lost_timeout": 3,
+        "lost_target": "",
+        "horizontal_threshold": 15,
+        "vertical_threshold": 15,
+        "max_distance": 5,
+        "adjust_speed": 0.1,
+        "yaw_speed": 0.2,
+        "settle_seconds": 1,
+        "target_distance": 1,
+        "distance_tolerance": 0.1,
+        "duration": 5
+      },
+      "status": "pending",
+      "next": null,
+      "branches": {},
+      "timeout": 120,
+      "auto_next": true
+    }
+  ]
+}
