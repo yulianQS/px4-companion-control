@@ -95,10 +95,27 @@
       "flight": true
     },
     {
+      "type": "pitch_brake",
+      "name": "俯仰制动 / 强制调平（PITCH BRAKE）",
+      "category": "基础飞行",
+      "description": "以水平零速度目标制动并保持进入时高度；水平速度、横滚、俯仰及俯仰角速度持续达标后进入下一步。姿态和制动力由 PX4 控制，不能保证特定调平速度。",
+      "fields": [
+        {"key": "speed_limit", "label": "完成阈值：水平速度 / m/s", "default": 0.2, "kind": "number", "min": 0.01, "max": 1},
+        {"key": "pitch_limit", "label": "完成阈值：俯仰绝对值 / °", "default": 5, "kind": "number", "min": 1, "max": 30},
+        {"key": "roll_limit", "label": "完成阈值：横滚绝对值 / °", "default": 10, "kind": "number", "min": 1, "max": 30},
+        {"key": "pitch_rate_limit", "label": "完成阈值：俯仰角速度 / °/s", "default": 15, "kind": "number", "min": 1, "max": 90},
+        {"key": "settle_time", "label": "连续稳定时间 / s", "default": 0.5, "kind": "number", "min": 0.1, "max": 5},
+        {"key": "brake_timeout", "label": "制动最长时间 / s", "default": 10, "kind": "number", "min": 2, "max": 30}
+      ],
+      "executable": true,
+      "reason": "",
+      "flight": true
+    },
+    {
       "type": "move",
       "name": "相对位移",
       "category": "基础飞行",
-      "description": "先制动并等待横滚、俯仰回正，再按任务开始时的机头方向平移或升降；距离从回正后的位置计算。",
+      "description": "后退时立即按任务开始时的机头方向执行，距离从任务开始位置计算；其他方向先制动并等待横滚、俯仰回正，再从回正后的位置计算距离。",
       "fields": [
         {
           "key": "direction",

@@ -562,7 +562,9 @@ std::string Mission::execute(const Json &b, double deadline) {
         motion("LAND", Json::object(), deadline);
     else if (type == "move") {
         p["kind"] = (p["direction"] == "up" || p["direction"] == "down") ? "height" : "move";
-        p["level_before_move"] = true;
+        // A backward move must reverse the reference immediately, even if the
+        // aircraft is still moving or tilted after the previous task.
+        p["level_before_move"] = p["direction"] != "back";
         motion("MOVE", p, deadline);
     } else if (type == "rotate") {
         p["kind"] = "rotate";
@@ -572,6 +574,10 @@ std::string Mission::execute(const Json &b, double deadline) {
         p["frame"] = "LOCAL_NED";
         p["unit"] = "cm";
         motion("SET_POSITION", p, deadline);
+    } else if (type == "pitch_brake") {
+        stop_vision();
+        p["kind"] = "pitch_brake";
+        motion("MOVE", p, deadline);
     } else if (type == "hover") {
         p["trajectory"] = "hover";
         motion("EXECUTE_TRAJECTORY", p, deadline);

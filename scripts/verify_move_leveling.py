@@ -41,7 +41,7 @@ def run():
             wait(lambda: state()['px4'].get('landed_state') == 2)
 
             def motion(): return state()['motion']
-            def start(direction='back', **params):
+            def start(direction='forward', phase='leveling', **params):
                 doc = dict(version=1, id='level-test', name='level-test', entry='move', blocks=[
                     dict(id='move', type='move', name='move', next=None, branches={}, timeout=8,
                          params=dict(direction=direction, distance=.3, speed=.6, acceleration=0,
@@ -49,7 +49,7 @@ def run():
                 result = command('MISSION_START', doc)
                 assert result['ok'], result
                 wait(lambda: state()['mission'].get('active') and motion().get('state') == 'running'
-                     and motion().get('phase') == 'leveling')
+                     and motion().get('phase') == phase)
                 return len(fake.setpoints)
             def held(first):
                 points = [m for _, m in fake.setpoints[first:]]
@@ -71,7 +71,22 @@ def run():
             wait(lambda: motion().get('state') == 'succeeded')
             assert motion().get('phase') != 'leveling'
 
-            # Mission moves always brake first. Roll and pitch must BOTH be small;
+            # Backward missions start immediately, even with tilt and forward velocity.
+            fake.follow_setpoints = False
+            fake.heading = .4; fake.pitch = .8; fake.reported_velocity = [.5, 0., 0.]
+            wait(lambda: abs(state()['px4']['attitude_deg'][2] - .4*180/math.pi) < .1)
+            first = start('back', phase='moving')
+            moving = motion()
+            origin, goal = moving['start_position'], moving['goal_position']
+            assert abs(goal[0] - origin[0] + .3*math.cos(.4)) < .001
+            assert abs(goal[1] - origin[1] + .3*math.sin(.4)) < .001
+            wait(lambda: any(m.vx*math.cos(.4) + m.vy*math.sin(.4) < -.1
+                             for _, m in fake.setpoints[first:]))
+            assert command('MISSION_STOP', {'mode':'hold'})['ok']
+            finished('stopped')
+            fake.reported_velocity = [0., 0., 0.]
+
+            # Other mission moves still brake first. Roll and pitch must BOTH be small;
             # level attitude alone is insufficient while measured velocity is high.
             # Suspend the idealized follower while changing simulated yaw; the
             # prior completed task would otherwise immediately overwrite it.
@@ -100,7 +115,7 @@ def run():
                 raise AssertionError(dict(motion=motion(), mission=state()['mission']))
             moved = motion()
             assert max(abs(a-b) for a,b in zip(moved['start_position'], expected_start)) < .001
-            expected_goal = [expected_start[0]-.3*math.cos(.4), expected_start[1]-.3*math.sin(.4), -.5]
+            expected_goal = [expected_start[0]+.3*math.cos(.4), expected_start[1]+.3*math.sin(.4), -.5]
             assert max(abs(a-b) for a,b in zip(moved['goal_position'], expected_goal)) < .001
             result = finished('succeeded')
             assert motion()['state'] == 'succeeded'
@@ -139,7 +154,7 @@ def run():
             assert command('MISSION_STOP', {'mode':'hold'})['ok']
             finished('stopped')
             assert time.monotonic()-began < 1
-            print('PASS: mission leveling gate, tilt/velocity/continuous fresh feedback, drift rebasing, '
+            print('PASS: immediate backward reference, other-direction leveling, tilt/velocity feedback, drift rebasing, '
                   'height moves, unchanged raw MOVE, timeout, NaN/stale attitude, cancellation and phase logs')
         finally:
             if client: client.stop()

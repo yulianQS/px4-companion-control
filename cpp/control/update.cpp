@@ -212,6 +212,53 @@ void Controller::update(const Json &s, double now) {
         finish("failed", "飞控不再确认在空中", s);
         return;
     }
+    if (kind == "pitch_brake") {
+        if (now - begun >= p.value("brake_timeout", 10.)) {
+            finish("timed_out", "制动超时，未进入下一积木；当前位置保持", s);
+            return;
+        }
+        const auto a = s.value("attitude_deg", Json::array());
+        const auto rates = s.value("angular_rate_rad_s", Json::object());
+        const double pitch = a.is_array() && a.size() >= 2 && a[1].is_number() ? a[1].get<double>() : NAN_VALUE;
+        const double roll = a.is_array() && a.size() >= 2 && a[0].is_number() ? a[0].get<double>() : NAN_VALUE;
+        const double pitch_rate = rates.is_object() && rates.contains("pitchspeed") && rates["pitchspeed"].is_number()
+                                      ? rates["pitchspeed"].get<double>() * 180 / PI : NAN_VALUE;
+        const Vec v = velocity(s);
+        const double horizontal_speed = std::hypot(v[0], v[1]);
+        const bool valid = fresh(s, "attitude", .25) && fresh(s, "position", .25) &&
+                           std::isfinite(pitch) && std::isfinite(roll) &&
+                           std::isfinite(pitch_rate) && std::isfinite(horizontal_speed);
+        const bool stable = valid && horizontal_speed <= p.value("speed_limit", .2) &&
+                            std::abs(pitch) <= p.value("pitch_limit", 5.) &&
+                            std::abs(roll) <= p.value("roll_limit", 10.) &&
+                            std::abs(pitch_rate) <= p.value("pitch_rate_limit", 15.);
+        const auto rev = s.value("position_revision", uint64_t(0));
+        const auto att_rev = s.value("counts", Json::object()).value("ATTITUDE", uint64_t(0));
+        const bool new_feedback = rev != settled_revision && att_rev != leveling_attitude_revision;
+        if (!stable) {
+            settled_at = 0;
+            settled_samples = 0;
+        } else if (new_feedback) {
+            if (!settled_at) settled_at = now;
+            ++settled_samples;
+        }
+        if (new_feedback) {
+            settled_revision = rev;
+            leveling_attitude_revision = att_rev;
+        }
+        task["phase"] = valid && horizontal_speed <= p.value("speed_limit", .2) ? "leveling" : "braking";
+        task["message"] = task["phase"] == "braking" ? "水平零速度制动中" : "速度已降低，等待姿态和角速度稳定";
+        task["completion"] = {{"horizontal_speed_m_s", horizontal_speed}, {"pitch_deg", pitch},
+                              {"roll_deg", roll}, {"pitch_rate_deg_s", pitch_rate},
+                              {"feedback_valid", valid}, {"stable_s", settled_at ? now - settled_at : 0.}};
+        if (stable && new_feedback && settled_at && settled_samples >= 3 &&
+            now - settled_at >= p.value("settle_time", .5)) {
+            finish("succeeded", "水平速度与姿态已稳定，当前位置保持", s);
+            task["phase"] = "completed";
+            task["progress"] = 1.;
+        }
+        return;
+    }
     if (update_move_leveling(s, now))
         return;
     double current_yaw = yaw(s), delta = wrap(current_yaw - last_yaw);

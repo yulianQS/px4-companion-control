@@ -105,6 +105,13 @@ void Controller::start_task(const Json &p, const std::string &id, const Json &s)
         }
         if (tol >= distance)
             throw std::runtime_error("Tolerance must be smaller than distance");
+    } else if (kind == "pitch_brake") {
+        bounded(p, "speed_limit", .2, .01, 1);
+        bounded(p, "pitch_limit", 5, 1, 30);
+        bounded(p, "roll_limit", 10, 1, 30);
+        bounded(p, "pitch_rate_limit", 15, 1, 90);
+        bounded(p, "settle_time", .5, .1, 5);
+        bounded(p, "brake_timeout", 10, 2, 30);
     } else if (kind == "position") {
         if (p.value("frame", std::string()) != "LOCAL_NED" ||
             p.value("unit", std::string()) != "cm")
@@ -196,13 +203,21 @@ void Controller::start_task(const Json &p, const std::string &id, const Json &s)
             {"progress", 0.},
             {"target_reached", false},
             {"circle_started", false}};
-    if (level) {
+    if (kind == "pitch_brake") {
+        target.p = {NAN_VALUE, NAN_VALUE, start[2]};
+        target.v = {0, 0, 0};
+        task["phase"] = "braking";
+        task["message"] = "水平零速度制动，PX4保持高度并控制姿态";
+    } else if (level) {
         // Brake through PX4 velocity control without pulling back to the old XY
         // position. Keep altitude/yaw; do not bypass PX4 with attitude/thrust commands.
         target.p = {NAN_VALUE, NAN_VALUE, start[2]};
         target.v = {0, 0, 0};
         task["phase"] = "leveling";
         task["message"] = "相对位移：先制动并等待横滚、俯仰回正，尚未开始位移";
+    } else if (kind == "move" && p.value("direction", std::string()) == "back") {
+        task["phase"] = "moving";
+        task["message"] = "相对位移：直接开始后退";
     }
     event(id, "running", "PX4 native position loop tracking C++ reference");
 }
