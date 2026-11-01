@@ -50,9 +50,6 @@ class FakePX4:
         self.landed = 1
         self.xyz = [0., 0., 0.]
         self.heading = 0.
-        self.roll = self.pitch = 0.
-        self.reported_velocity = [0., 0., 0.]
-        self.send_attitude = True
         self.epoch = 0
         self.flags = 302
         self.setpoints = []
@@ -158,10 +155,9 @@ class FakePX4:
                     self.armed = False
                 if now - sent >= .05:
                     ms = max(0, int((now - self.boot) * 1000))
-                    if self.send_attitude:
-                        mav.attitude_send(ms, self.roll, self.pitch, self.heading, 0, 0, 0)
+                    mav.attitude_send(ms, 0, 0, self.heading, 0, 0, 0)
                     mav.odometry_send(ms * 1000, 1, 12, *self.xyz, [1, 0, 0, 0], 0, 0, 0, 0, 0, 0, [0.] * 21, [0.] * 21, self.epoch, 2, 100)
-                    mav.local_position_ned_send(ms, *self.xyz, *self.reported_velocity)
+                    mav.local_position_ned_send(ms, *self.xyz, 0, 0, 0)
                     if self.send_native_target:
                         z = self.takeoff_z if self.native_target_override is None else self.native_target_override
                         mav.position_target_local_ned_send(ms, 1, self.native_target_mask,

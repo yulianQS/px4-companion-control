@@ -1,11 +1,11 @@
 {
   "version": 1,
   "parameters": {
-    "yaw_gain": 3,
+    "yaw_gain": 2,
     "yaw_ki": 0,
     "yaw_kd": 0,
     "yaw_speed_rad_s": 0,
-    "vertical_gain": 0.8,
+    "vertical_gain": 1,
     "vertical_ki": 0,
     "vertical_kd": 0,
     "vertical_speed_m_s": 0,
@@ -13,9 +13,14 @@
     "distance_ki": 0,
     "distance_kd": 0,
     "forward_speed_m_s": 4,
+    "lateral_gain": 2,
+    "lateral_ki": 0,
+    "lateral_kd": 0,
+    "lateral_speed_m_s": 2,
+    "lateral_enabled": true,
     "tag_size_m": 0.12,
-    "target_distance_m": 0.2,
-    "vertical_enabled": false,
-    "distance_enabled": false
+    "target_distance_m": 0.1,
+    "vertical_enabled": true,
+    "distance_enabled": true
   }
 }

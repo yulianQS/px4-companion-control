@@ -93,8 +93,6 @@ cmake --build build -j2
 
 日志目录、时间戳命名、任务与 CSV 对齐、中断恢复及落盘规则见 [板端工程日志与保留规则](docs/log_storage.md)。
 
-“相对位移”积木先制动回正，再执行前后左右或升降位移。回正阶段发送零水平速度，保持进入时的高度和航向，由 PX4 原控制器执行；默认要求横滚、俯仰都在 ±5° 内，三轴合速度不超过 0.2 m/s，并在新鲜反馈下连续稳定 0.5 秒。积木参数可调整角度、速度、稳定时间和回正最长等待时间（默认 10 秒）；回正超时会失败并保持位置，不执行位移。距离从回正后的位置计算，方向仍按进入积木时的机头方向；回正等待计入整个积木超时。运行状态和任务日志区分 `leveling` 与 `moving` 阶段。直接调用原有 `MOVE` 接口不改变默认行为。
-
 比赛编排的运行监控区显示前置实时视觉画面，与运动页面共用同一条视频流；画面旁保留原“一键停转电机”按钮。图像超过两秒未更新时隐藏旧画面并提示重连，视频中断不影响停转按钮发出请求。
 
 视觉链共用 C++ 目标状态和一个持续运行的视觉控制会话。搜索时目标闪现即取消原广域扫描并开始缓慢接近，不等识别确认才移动。按当前航向和现有前视相机有效目标位姿记住目标方位，没有位姿时沿发现时机头方向。默认接近速度 0.1 m/s、加速度 0.2 m/s²，均可在搜索参数中保存；转向按扫描角速度平滑调整，搜索阶段保持高度。短暂漏检默认继续沿最后目标方位前进 2 秒；超出该时间平滑减速并在方位附近扫描（默认 ±10°），保持同一积木、同一会话，不重新执行广域搜索。
@@ -108,7 +106,6 @@ cmake --build build -j2
 /home/pi/venv/bin/python -B scripts/verify_vision_defaults.py
 /home/pi/venv/bin/python -B scripts/verify_vision_snapshots.py
 /home/pi/venv/bin/python -B scripts/verify_auto_takeoff.py build/drone_service
-/home/pi/venv/bin/python -B scripts/verify_move_leveling.py build/drone_service
 /home/pi/venv/bin/python -B scripts/verify_mission_cpp.py build/drone_service
 ```
 
