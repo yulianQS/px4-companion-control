@@ -479,7 +479,7 @@ std::string Mission::visual(const Json &b, double deadline) {
     const double horizontal = p[coarse ? "coarse_horizontal_threshold" : "horizontal_threshold"],
                  vertical = p["vertical_threshold"],
                  settle = p[coarse ? "coarse_settle_seconds" : "settle_seconds"];
-    double stable = 0, previous = 0, missing = 0, started = now_s();
+    double stable = 0, previous = 0, missing = 0, started = now_s(), progress_at = 0;
     unsigned epoch = 0;
     bool was_aligned = false;
     start_vision(b, distance);
@@ -504,7 +504,11 @@ std::string Mission::visual(const Json &b, double deadline) {
                 missing = now_s();
                 event(
                     "vision_unavailable",
-                    {{"block_id", b["id"]}, {"target_found", !v.is_null()}, {"pose_valid", pose}});
+                     {{"block_id", b["id"]}, {"target_found", !v.is_null()}, {"pose_valid", pose},
+                      {"observed", !v.is_null() && v.value("target_observed", false)},
+                      {"retained", !v.is_null() && v.value("target_retained", false)},
+                      {"tracking_reason", v.is_object() ? v.value("tracking_reason", std::string()) : std::string()},
+                      {"distance_m", pose ? Json(metres) : Json()}});
             }
             track_target(v, missing, m.value("message", std::string()));
             if (now_s() - missing >= p["lost_timeout"].get<double>()) {
@@ -533,11 +537,20 @@ std::string Mission::visual(const Json &b, double deadline) {
         const bool new_observation = stamp > previous;
         if (epoch != v.value("tracking_epoch", 0u) || !aligned)
             stable = 0;
-        else if (was_aligned && stamp > previous)
-            stable += std::min(.1, stamp - previous);
+        else if ((was_aligned || coarse) && previous > 0 && stamp > previous)
+            // Count only new real detections, with a small per-frame cap. A
+            // short dropout pauses coarse evidence rather than erasing it or
+            // crediting the entire unobserved interval.
+            stable += std::min(coarse ? .05 : .1, stamp - previous);
         epoch = v.value("tracking_epoch", 0u);
         previous = stamp;
         was_aligned = aligned;
+        if (coarse && now_s() >= progress_at) {
+            event("coarse_alignment_progress", {{"block_id", b["id"]}, {"error_px", {ex, ey}},
+                  {"horizontal_limit_px", horizontal}, {"aligned", aligned},
+                  {"stable_s", stable}, {"required_s", settle}, {"distance_m", metres}});
+            progress_at = now_s() + 2.;
+        }
         if (new_observation && aligned && stable >= settle &&
             (!distance || now_s() - started >= p["duration"].get<double>())) {
             event(coarse ? "coarse_alignment_handoff" : "vision_complete",
